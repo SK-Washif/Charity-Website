@@ -1,50 +1,156 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { 
+  FaSearch, 
+  FaUserGraduate, 
+  FaMoneyBillWave, 
+  FaRocket, 
+  FaGlobeAsia 
+} from "react-icons/fa";
+
 const services = [
   {
-    title: "শিক্ষা সহায়তা",
-    text: "মেধাবী ও অসচ্ছল শিক্ষার্থীদের জন্য শিক্ষাবৃত্তি, বই-খাতা ও ভর্তি সহায়তা।",
+    title: "মেধাবী শিক্ষার্থী খোঁজা",
+    text: "সারা বাংলাদেশ থেকে প্রকৃত মেধাবী ও অর্থনৈতিকভাবে দুর্বল শিক্ষার্থীদের খুঁজে বের করা — যাদের পড়াশোনা চালিয়ে যেতে আর্থিক সহায়তা প্রয়োজন।",
+    icon: FaSearch,
   },
   {
-    title: "স্বাস্থ্যসেবা",
-    text: "বিনামূল্যে স্বাস্থ্য শিবির, ওষুধ বিতরণ ও জরুরি চিকিৎসা সহায়তা।",
+    title: "শিক্ষাবৃত্তি প্রদান",
+    text: "নির্বাচিত শিক্ষার্থীদের নিয়মিত আর্থিক সহায়তা প্রদান, যাতে তারা পড়াশোনায় মনোযোগ দিতে পারে এবং ভালো ফলাফল অর্জন করতে পারে।",
+    icon: FaMoneyBillWave,
   },
   {
-    title: "খাদ্য বিতরণ",
-    text: "দুস্থ পরিবারের জন্য নিয়মিত খাদ্যসামগ্রী ও ঈদ/রমজান বিশেষ প্যাকেজ।",
-  },
-  {
-    title: "জরুরি ত্রাণ",
-    text: "বন্যা, ঝড় বা যেকোনো দুর্যোগে দ্রুত ত্রাণ ও পুনর্বাসন সহায়তা।",
+    title: "পরিবারকে সহায়তা",
+    text: "শুধু শিক্ষার্থী নয়, তাদের পরিবারকেও সহায়তা করা — যাতে পরিবারের আর্থিক চাপ শিক্ষার্থীর পড়াশোনায় বাধা না হয়ে দাঁড়ায়।",
+    icon: FaUserGraduate,
   },
   {
     title: "দক্ষতা উন্নয়ন",
-    text: "তরুণ-তরুণীদের জন্য বিনামূল্যে প্রশিক্ষণ ও কর্মসংস্থান সংযোগ।",
+    text: "শিক্ষার্থীদের পড়াশোনার পাশাপাশি দক্ষতা উন্নয়নে প্রশিক্ষণ প্রদান, যাতে তারা ভবিষ্যতে কর্মসংস্থানের জন্য প্রস্তুত থাকে।",
+    icon: FaRocket,
+  },
+  {
+    title: "বাংলাদেশের উন্নয়নে অবদান",
+    text: "শিক্ষিত ও দক্ষ জনশক্তি তৈরি করে বাংলাদেশের সামগ্রিক উন্নয়নে অবদান রাখা — প্রতিটি শিক্ষার্থী আমাদের ভবিষ্যতের সম্পদ।",
+    icon: FaGlobeAsia,
   },
 ];
+
+// Animation variants
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: delay, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12 },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export default function Services() {
   return (
     <section id="services" className="anchor-section section border-t border-line bg-paper">
-      <span className="label-caps text-stamp">সেবাসমূহ</span>
-      <h2 className="mt-2 font-display text-3xl font-semibold">
-        আমাদের কার্যক্রম
-      </h2>
-      <p className="mt-4 max-w-2xl font-body text-ink-muted">
-        পাঁচটি মূল খাতে আমরা নিয়মিত কাজ করে যাচ্ছি — প্রতিটি কার্যক্রমের
-        অগ্রগতি ও সুবিধাভোগীর সংখ্যা প্রকাশ্যে রাখা হয়।
-      </p>
+      <div className="container-6xl">
+        {/* Header */}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="mb-12"
+        >
+          <motion.span variants={fadeUp} custom={0} className="label-caps text-marigold font-semibold">
+            আমাদের সেবাসমূহ
+          </motion.span>
 
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((s) => (
-          <div
-            key={s.title}
-            className="rounded-sm border border-line bg-kraft/40 p-6 transition-shadow hover:shadow-md"
+          <motion.h2
+            variants={fadeUp}
+            custom={0.1}
+            className="mt-2 font-display text-3xl font-semibold text-ink md:text-4xl"
           >
-            <h3 className="font-display text-lg font-semibold text-ink">
-              {s.title}
-            </h3>
-            <p className="mt-2 font-body text-sm text-ink-muted">{s.text}</p>
+            আমরা যা করি
+          </motion.h2>
+
+          <motion.p
+            variants={fadeUp}
+            custom={0.2}
+            className="mt-4 max-w-2xl font-body text-ink-muted"
+          >
+            আমাদের মূল লক্ষ্য — দেশের প্রকৃত মেধাবী ও অর্থনৈতিকভাবে দুর্বল শিক্ষার্থীদের খুঁজে বের করা 
+            এবং তাদের আর্থিক সহায়তা প্রদান করা, যাতে তারা নির্বিঘ্নে পড়াশোনা চালিয়ে যেতে পারে 
+            এবং বাংলাদেশের উন্নয়নে অবদান রাখতে পারে।
+          </motion.p>
+        </motion.div>
+
+        {/* Services Grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {services.map((service, index) => {
+            const Icon = service.icon;
+            return (
+              <motion.div
+                key={service.title}
+                variants={cardVariants}
+                custom={index}
+                className="group rounded-2xl bg-kraft/60 p-6 transition-all hover:bg-paper hover:shadow-xl border border-line hover:border-marigold/30"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-marigold/10 p-3 rounded-xl group-hover:bg-marigold/20 transition-colors shrink-0">
+                    <Icon className="text-marigold text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg font-semibold text-ink">
+                      {service.title}
+                    </h3>
+                    <p className="mt-2 font-body text-sm leading-relaxed text-ink-muted">
+                      {service.text}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Bottom Note */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-10 text-center"
+        >
+          <div className="inline-block bg-marigold/5 border border-marigold/20 rounded-xl px-6 py-4 max-w-2xl">
+            <p className="text-sm text-ink-muted leading-relaxed">
+              <span className="text-marigold font-semibold">✦</span>{' '}
+              আমাদের বিশ্বাস —{' '}
+              <span className="font-medium text-ink">প্রতিটি মেধাবী শিক্ষার্থীর স্বপ্ন পূরণের সুযোগ পাওয়া উচিত</span>
+              , অর্থনৈতিক সীমাবদ্ধতা যেন কারো পড়াশোনার পথে বাধা না হয়ে দাঁড়ায়।{' '}
+              <span className="text-marigold font-semibold">✦</span>
+            </p>
           </div>
-        ))}
+        </motion.div>
       </div>
     </section>
   );
