@@ -66,7 +66,7 @@ const cardVariants = {
 
 export default function Services() {
   return (
-    <section id="services" className="anchor-section section border-t border-line bg-paper">
+    <section id="services" className="anchor-section section border-t border-line bg-paper mb-24">
       <div className="container-6xl">
         {/* Header */}
         <motion.div
