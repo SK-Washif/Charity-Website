@@ -18,12 +18,12 @@
 }
 
 @layer components {
-  /* Small-caps tracked-out label, used for nav links, eyebrows, form section labels */
+  /* Small-caps tracked-out label */
   .label-caps {
     @apply font-body text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted;
   }
 
-  /* A ledger-style row: label ..... dotted leader ..... value */
+  /* Ledger-style row */
   .ledger-row {
     @apply flex items-baseline gap-2;
   }
@@ -37,11 +37,12 @@
     @apply font-mono text-2xl font-medium text-ink;
   }
 
-  /* The rotated circular stamp/seal — signature element, reused as logo mark & footer seal */
+  /* Stamp */
   .stamp {
     @apply relative flex items-center justify-center rounded-full border-2 border-dashed;
   }
 
+  /* Buttons */
   .btn-marigold {
     @apply inline-flex items-center gap-2 rounded-sm bg-marigold px-5 py-2.5 font-body text-sm font-semibold text-ink
       transition-transform hover:-translate-y-0.5 hover:shadow-md;
@@ -51,26 +52,40 @@
       transition-colors hover:bg-ink hover:text-kraft;
   }
 
+  /* ================================================ */
+  /* 🔥 WIDTH FIX - এখানে পরিবর্তন করুন              */
+  /* ================================================ */
+
+  /* Section - max-w-6xl থেকে max-w-7xl করা হয়েছে */
   .section {
-    @apply mx-auto w-full max-w-6xl px-6 py-16 md:px-10;
+    @apply mx-auto w-full max-w-7xl px-6 py-16 md:px-10 lg:px-12;
   }
 
-  /* One-page layout: anchored sections need top offset so the sticky
-     navbar doesn't cover the heading when jumped/scrolled to. */
-  .anchor-section {
-    @apply scroll-mt-20;
-  }
-
-  /* ================================================ */
-  /* Hero Section Styles                              */
-  /* ================================================ */
-
-  /* Container Custom - Hero এর জন্য */
+  /* Container Custom - পুরনো, রেখে দিচ্ছি কিন্তু ব্যবহার করবেন না */
   .container-custom {
     @apply container mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* Hero Primary Button - হালকা সোনালি */
+  /* 🔥 NEW - Container XL (বড় screen এর জন্য) */
+  .container-xl {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
+    max-width: 1440px;
+    width: 100%;
+  }
+
+  /* 🔥 NEW - Container Full (পুরো width এর জন্য) */
+  .container-full {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Anchor section */
+  .anchor-section {
+    @apply scroll-mt-20;
+  }
+
+  /* Hero Buttons */
   .btn-hero-primary {
     @apply px-8 py-3 rounded-lg font-semibold transition-all duration-300;
     background-color: #FCD34D;
@@ -83,7 +98,6 @@
     box-shadow: 0 6px 30px rgba(252, 211, 77, 0.5);
   }
 
-  /* Hero Secondary Button - স্বচ্ছ সাদা */
   .btn-hero-secondary {
     @apply px-8 py-3 rounded-lg font-semibold transition-all duration-300;
     background-color: rgba(255, 255, 255, 0.15);
@@ -101,15 +115,9 @@
   .bg-paper {
     @apply bg-kraft;
   }
-
-  /* ❌ এই অংশটি সরিয়ে ফেলুন */
-  /* .border-line {
-    @apply border-line;
-  } */
 }
 
 @layer utilities {
-  /* Text Shadow - টেক্সট পড়তে সহজ করার জন্য */
   .text-shadow {
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
   }
@@ -118,7 +126,6 @@
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
   }
 
-  /* Hero Overlay - ব্যানারের উপর হালকা ছায়া */
   .hero-overlay {
     background: linear-gradient(
       to right,
@@ -128,7 +135,6 @@
     );
   }
 
-  /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;

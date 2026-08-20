@@ -84,7 +84,7 @@ const StatsSection = () => {
   };
 
   return (
-    <section className="section bg-white border-b border-line">
+    <section className="section bg-white border-b border-line mb-24">
       <div className="container-custom">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

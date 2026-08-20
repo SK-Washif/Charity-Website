@@ -116,7 +116,7 @@ const Hero = () => {
 
             {/* Content */}
             <div className="absolute inset-0 z-20 flex items-center">
-              <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="container-xl mx-auto">
                 <div className="max-w-3xl">
                   {/* Badge */}
                   <motion.span

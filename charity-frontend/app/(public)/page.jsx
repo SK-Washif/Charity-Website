@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <StatsSection/>
+      <StatsSection />
       <About />
       <Services />
       <Gallery />

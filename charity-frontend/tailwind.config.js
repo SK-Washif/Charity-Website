@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: [
-  "./app/**/*.{js,jsx,ts,tsx,mdx}",
-  "./components/**/*.{js,jsx,ts,tsx,mdx}",
-],
+    "./app/**/*.{js,jsx,ts,tsx,mdx}",
+    "./components/**/*.{js,jsx,ts,tsx,mdx}",
+  ],
   theme: {
     extend: {
       colors: {
@@ -25,6 +25,29 @@ const config = {
       },
       backgroundImage: {
         "dotted-leader": "linear-gradient(to right, var(--tw-gradient-stops))",
+      },
+      // 🔥 NEW - Custom Container
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: "1rem",
+          sm: "1.5rem",
+          lg: "2rem",
+          xl: "2.5rem",
+          "2xl": "3rem",
+        },
+        screens: {
+          sm: "640px",
+          md: "768px",
+          lg: "1024px",
+          xl: "1280px",
+          "2xl": "1536px",
+        },
+      },
+      // 🔥 NEW - Custom Screens
+      screens: {
+        "3xl": "1920px",
+        "4xl": "2560px",
       },
     },
   },
