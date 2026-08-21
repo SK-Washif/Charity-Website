@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaGraduationCap, FaArrowRight } from "react-icons/fa";
+import DonateButton from "@/components/ui/DonateButton";
 
 // Animation variants
 const fadeUp = {
@@ -82,7 +83,7 @@ export default function ScholarshipPreview() {
             <motion.div
               variants={fadeUp}
               custom={0.4}
-              className="mt-6"
+              className="mt-6 flex flex-wrap items-center gap-4"
             >
               <Link
                 href="/scholarship"
@@ -92,6 +93,7 @@ export default function ScholarshipPreview() {
                 শিক্ষাবৃত্তির জন্য আবেদন করুন
                 <FaArrowRight size={14} />
               </Link>
+              <DonateButton variant="outline" />
             </motion.div>
           </motion.div>
 

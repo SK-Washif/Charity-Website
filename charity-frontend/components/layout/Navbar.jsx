@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import Stamp from "@/components/ui/Stamp";
+import DonateButton from "@/components/ui/DonateButton";
 
 // সিঙ্গেল-পেজ সাইট: প্রতিটি নেভিগেশন আইটেম হোম পেজের একটি সেকশন id-কে
 // পয়েন্ট করে ("/#id")। হোম পেজে থাকলে এটি স্মুথ-স্ক্রল করবে, আর অন্য
@@ -22,9 +23,9 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:px-10">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10">
         <Link href="/" className="flex items-center gap-3">
-          <Stamp size={44} rotate={-6} lines={["ঐক্য", "তান"]} />
+          {/* <Stamp size={44} rotate={-6} lines={["ঐক্য", "তান"]} /> */}
           <span className="font-display text-lg font-semibold text-ink">
             ঐক্যতান ফাউন্ডেশন
           </span>
@@ -40,9 +41,13 @@ export default function Navbar() {
           ))}
         </ul>
 
-        <Link href="/scholarship" className="btn-marigold hidden md:inline-flex">
-          শিক্ষাবৃত্তি আবেদন
-        </Link>
+        <div className="hidden items-center gap-3 md:flex">
+          
+          <Link href="/scholarship" className="btn-marigold inline-flex">
+            শিক্ষাবৃত্তি আবেদন
+          </Link>
+          <DonateButton size="sm" variant="outline" />
+        </div>
 
         <button
           className="text-ink md:hidden"
@@ -66,7 +71,7 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li className="pt-2">
+          <li className="flex flex-wrap gap-3 pt-2">
             <Link
               href="/scholarship"
               className="btn-marigold inline-flex"
@@ -74,6 +79,7 @@ export default function Navbar() {
             >
               শিক্ষাবৃত্তি আবেদন
             </Link>
+            <DonateButton size="sm" variant="outline" />
           </li>
         </ul>
       )}

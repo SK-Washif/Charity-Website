@@ -1,13 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  FaSearch, 
-  FaUserGraduate, 
-  FaMoneyBillWave, 
-  FaRocket, 
-  FaGlobeAsia 
+import {
+  FaSearch,
+  FaUserGraduate,
+  FaMoneyBillWave,
+  FaRocket,
+  FaGlobeAsia,
 } from "react-icons/fa";
+import DonateButton from "@/components/ui/DonateButton";
 
 const services = [
   {
@@ -149,6 +150,23 @@ export default function Services() {
               , অর্থনৈতিক সীমাবদ্ধতা যেন কারো পড়াশোনার পথে বাধা না হয়ে দাঁড়ায়।{' '}
               <span className="text-marigold font-semibold">✦</span>
             </p>
+          </div>
+        </motion.div>
+
+        {/* Donate CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-6 text-center"
+        >
+          <p className="mx-auto max-w-xl font-body text-sm text-ink-muted leading-relaxed">
+            আপনার সামান্য অনুদানও একজন শিক্ষার্থীর জীবনে বড় পরিবর্তন
+            আনতে পারে — আজই এই মহৎ উদ্যোগের অংশ হোন।
+          </p>
+          <div className="mt-5 flex justify-center">
+            <DonateButton />
           </div>
         </motion.div>
       </div>

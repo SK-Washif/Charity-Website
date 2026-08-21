@@ -90,8 +90,7 @@ export default function ScholarshipPage() {
         Scholarship Application
       </h1>
       <p className="mt-4 max-w-xl font-body text-ink-muted">
-        নিচের তথ্যগুলো পূরণ করে জমা দিন। Submit হলে ডেটা Google Sheets-এ
-        সংরক্ষিত হবে এবং আপনাকে প্রিন্টযোগ্য পূর্ণাঙ্গ ফর্ম পেজে নিয়ে যাওয়া
+        নিচের তথ্যগুলো পূরণ করে জমা দিন। Submit হলে আপনাকে প্রিন্টযোগ্য পূর্ণাঙ্গ ফর্ম পেজে নিয়ে যাওয়া
         হবে, যেখানে এই তথ্যগুলো আগে থেকেই পূরণ করা থাকবে।
       </p>
 
@@ -129,9 +128,7 @@ export default function ScholarshipPage() {
                   maxLength="10"
                 />
               </div>
-              <p className="text-xs text-ink-muted/60 mt-1">
-                উদাহরণ: 1712345678 (১১ ডিজিট)
-              </p>
+              
             </Field>
 
             <Field label="এইচ.এস.সি বিভাগ" required>

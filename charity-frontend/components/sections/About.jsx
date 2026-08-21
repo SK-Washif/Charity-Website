@@ -95,14 +95,14 @@ export default function About() {
             পাশে দাঁড়াই — যাতে তারা মর্যাদার সাথে নিজেদের জীবন গড়ে তুলতে পারে।
           </motion.p>
 
-          <motion.a
+          {/* <motion.a
             variants={fadeUp}
             custom={3}
             href="#contact"
             className="btn-marigold mt-6 inline-flex"
           >
             আরও জানুন
-          </motion.a>
+          </motion.a> */}
         </motion.div>
 
         {/* ডান পাশ: ইমেজ কোলাজ - প্রফেশনাল স্টাইল */}
