@@ -1,9 +1,6 @@
-// lib/scholarshipService.js
+import { api } from "@/lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_API_URL;
 
-// ঠিকানার ৫টা আলাদা ফিল্ড (বিভাগ, জেলা, উপজেলা, পৌরসভা/ইউনিয়ন, গ্রাম)
-// কমা দিয়ে জুড়ে একটাই স্ট্রিং বানায়, খালি অংশ বাদ দিয়ে।
 function joinAddressParts(division, district, upazila, municipality, village) {
   return [division, district, upazila, municipality, village]
     .map((v) => (v ?? "").toString().trim())
@@ -12,13 +9,6 @@ function joinAddressParts(division, district, upazila, municipality, village) {
 }
 
 export const submitScholarship = async (formData) => {
-  if (!API_URL) {
-    console.error(
-      "[scholarshipService] NEXT_PUBLIC_GOOGLE_SHEETS_API_URL সেট করা নেই — .env.local চেক করুন।"
-    );
-    return { success: false, error: "API URL configured নেই" };
-  }
-
   try {
     const permanentAddress = joinAddressParts(
       formData.permanentDivision,
@@ -36,7 +26,6 @@ export const submitScholarship = async (formData) => {
       formData.currentVillage
     );
 
-    // Mobile number clean
     const cleanMobile = (formData.studentMobile || "").replace(/[^0-9]/g, "");
 
     const payload = {
@@ -48,7 +37,7 @@ export const submitScholarship = async (formData) => {
       gender: formData.gender || "",
       permanentAddress,
       currentAddress,
-      hscGroup: formData.hscGroup || "", // ✅ নতুন
+      hscGroup: formData.hscGroup || "",
       gpa: formData.gpa || "",
       gpaWithout4th: formData.gpaWithout4th || "",
       guardianYearlyIncome: formData.guardianYearlyIncome || "",
@@ -57,18 +46,13 @@ export const submitScholarship = async (formData) => {
       siblingsCount: formData.siblingsCount || "",
     };
 
-    await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8",
-      },
-      body: JSON.stringify(payload),
-    });
+   
+    await api.submitScholarship(payload);
 
     return { success: true, payload };
   } catch (error) {
     console.error("Error submitting scholarship:", error);
-    return { success: false, error: error.message };
+    const backendMessage = error?.response?.data?.error?.message;
+    return { success: false, error: backendMessage || error.message };
   }
 };

@@ -15,7 +15,7 @@ export default function Footer() {
               <div className="bg-marigold/20 p-2 rounded-full">
                 <FaHeart className="text-marigold text-xl" />
               </div>
-              <h2 className="font-display text-2xl font-bold text-white">
+              <h2 className="font-display text-3xl font-bold text-white">
                 ঐক্যতান <span className="text-marigold">ফাউন্ডেশন</span>
               </h2>
             </div>

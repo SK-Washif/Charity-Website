@@ -6,10 +6,6 @@ import { HiMenu, HiX } from "react-icons/hi";
 import Stamp from "@/components/ui/Stamp";
 import DonateButton from "@/components/ui/DonateButton";
 
-// সিঙ্গেল-পেজ সাইট: প্রতিটি নেভিগেশন আইটেম হোম পেজের একটি সেকশন id-কে
-// পয়েন্ট করে ("/#id")। হোম পেজে থাকলে এটি স্মুথ-স্ক্রল করবে, আর অন্য
-// রুটে (যেমন /scholarship) থাকলে আগে হোমে নিয়ে গিয়ে তারপর ওই সেকশনে
-// জাম্প করবে।
 const links = [
   { href: "/#about", label: "আমাদের কথা" },
   { href: "/#services", label: "সেবাসমূহ" },
@@ -26,7 +22,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10">
         <Link href="/" className="flex items-center gap-3">
           {/* <Stamp size={44} rotate={-6} lines={["ঐক্য", "তান"]} /> */}
-          <span className="font-display text-lg font-semibold text-ink">
+          <span className="font-display text-2xl font-semibold text-ink">
             ঐক্যতান ফাউন্ডেশন
           </span>
         </Link>

@@ -4,11 +4,6 @@ const toneClasses = {
   stamp: "border-stamp text-stamp",
 };
 
-/**
- * The recurring "registry seal" motif — grounded in the scholarship form's
- * real printed/stamped hard-copy workflow. Used as the logo mark and as a
- * footer seal; keep usage sparse elsewhere so it stays a signature, not decoration.
- */
 export default function Stamp({ size = 72, rotate = -8, tone = "ink", lines }) {
   return (
     <div

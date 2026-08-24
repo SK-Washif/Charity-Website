@@ -198,8 +198,7 @@ export default function DonateButton({
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Portal শুধু ব্রাউজারে (client-side) কাজ করে, তাই mount হওয়ার
-  // পর document.body পাওয়া নিশ্চিত করা হচ্ছে (SSR-এ document নেই)।
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -223,11 +222,7 @@ export default function DonateButton({
         {children || "অনুদান করুন"}
       </button>
 
-      {/*
-        document.body-তে পোর্টাল করে রেন্ডার করা হচ্ছে, যাতে Navbar-এর
-        মতো backdrop-blur/filter থাকা কোনো ancestor-এর ভেতরে আটকে না
-        থেকে পপআপটা সবসময় পুরো স্ক্রিনের মাঝখানে দেখায়।
-      */}
+      
       {mounted &&
         createPortal(
           <AnimatePresence>

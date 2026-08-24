@@ -1,40 +1,106 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { FaTrash, FaPlus, FaImage } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { FaTrash, FaPen, FaPlus, FaImage } from "react-icons/fa";
+import { api } from "@/lib/api";
+import { loadCollection, saveCollection, makeId } from "@/lib/localStore";
+import ImageUploader from "@/components/admin/ImageUploader";
 import Field from "@/components/forms/Field";
 
-// TODO: ব্যাকএন্ড রেডি হলে GET /api/gallery থেকে লিস্ট আনতে হবে
-const initialItems = [];
-
+const STORE_KEY = "gallery";
 const emptyForm = { title: "", imageUrl: "" };
 
 export default function AdminGalleryPage() {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await api.getGallery();
+        setItems(Array.isArray(data) ? data : []);
+      } catch {
+        setItems(loadCollection(STORE_KEY, []));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  function persist(next) {
+    setItems(next);
+    saveCollection(STORE_KEY, next);
+  }
 
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e) {
+  function resetForm() {
+    setForm(emptyForm);
+    setEditingId(null);
+    setError("");
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     if (!form.imageUrl.trim()) {
-      setError("ছবির URL আবশ্যক।");
+      setError("ছবি আপলোড করা আবশ্যক।");
       return;
     }
-    // TODO: ব্যাকএন্ড রেডি হলে -> await api.post("/api/gallery", form);
-    // ছবি হোস্টিং ImageBB (i.ibb.co) ব্যবহার করে হবে, তাই এখানে সরাসরি URL যোগ করা হচ্ছে
-    setItems((list) => [...list, { id: Date.now(), ...form }]);
-    setForm(emptyForm);
+
+    setSaving(true);
+    try {
+      if (editingId) {
+        try {
+          await api.updateGalleryItem(editingId, form);
+        } catch {
+         
+        }
+        persist(items.map((it) => (it.id === editingId ? { ...it, ...form } : it)));
+        toast.success("ছবি আপডেট হয়েছে।");
+      } else {
+        const newItem = { id: makeId(), ...form };
+        try {
+          await api.createGalleryItem(newItem);
+        } catch {
+          
+        }
+        persist([...items, newItem]);
+        toast.success("নতুন ছবি যোগ হয়েছে।");
+      }
+      resetForm();
+    } finally {
+      setSaving(false);
+    }
   }
 
-  function handleDelete(id) {
-    // TODO: ব্যাকএন্ড রেডি হলে -> await api.delete(`/api/gallery/${id}`);
-    setItems((list) => list.filter((item) => item.id !== id));
+  function handleEdit(item) {
+    setEditingId(item.id);
+    setForm({ title: item.title || "", imageUrl: item.imageUrl });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function handleDelete(id) {
+    if (!confirm("এই ছবিটি মুছে ফেলতে চান?")) return;
+    try {
+      await api.deleteGalleryItem(id);
+    } catch {
+      
+    }
+    persist(items.filter((it) => it.id !== id));
+    toast.success("ছবি মুছে ফেলা হয়েছে।");
+    if (editingId === id) resetForm();
+  }
+
+  if (loading) {
+    return <p className="font-body text-sm text-ink-muted">লোড হচ্ছে...</p>;
   }
 
   return (
@@ -44,15 +110,24 @@ export default function AdminGalleryPage() {
         Manage Gallery
       </h1>
       <p className="mt-2 max-w-xl font-body text-sm text-ink-muted">
-        ছবির URL (ImageBB বা যেকোনো হোস্টেড লিংক) দিয়ে গ্যালারিতে ছবি যোগ
-        করুন। হোম পেজের &quot;গ্যালারি&quot; সেকশনে এগুলো দেখা যাবে।
+        ছবি আপলোড করুন ও শিরোনাম লিখুন — হোম পেজের &quot;গ্যালারি&quot;
+        সেকশনে এগুলো দেখা যাবে।
       </p>
 
       <form
         onSubmit={handleSubmit}
         className="mt-6 max-w-xl space-y-4 rounded-sm border border-line bg-paper p-5"
       >
-        <h2 className="label-caps text-ink-muted">নতুন ছবি যোগ করুন</h2>
+        <h2 className="label-caps text-ink-muted">
+          {editingId ? "ছবি এডিট করুন" : "নতুন ছবি যোগ করুন"}
+        </h2>
+
+        <ImageUploader
+          label="ছবি"
+          value={form.imageUrl}
+          onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+          aspect="aspect-[4/3]"
+        />
         <Field
           label="শিরোনাম (ঐচ্ছিক)"
           name="title"
@@ -60,18 +135,20 @@ export default function AdminGalleryPage() {
           onChange={handleChange}
           placeholder="যেমন: খাদ্য বিতরণ কার্যক্রম"
         />
-        <Field
-          label="ছবির URL"
-          name="imageUrl"
-          value={form.imageUrl}
-          onChange={handleChange}
-          placeholder="https://i.ibb.co/..."
-        />
+
         {error && <p className="font-body text-sm text-red-600">{error}</p>}
-        <button type="submit" className="btn-marigold">
-          <FaPlus size={12} />
-          যোগ করুন
-        </button>
+
+        <div className="flex gap-3">
+          <button type="submit" disabled={saving} className="btn-marigold disabled:opacity-60">
+            <FaPlus size={12} />
+            {saving ? "সেভ হচ্ছে..." : editingId ? "আপডেট করুন" : "যোগ করুন"}
+          </button>
+          {editingId && (
+            <button type="button" onClick={resetForm} className="btn-outline-ink">
+              বাতিল
+            </button>
+          )}
+        </div>
       </form>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -80,20 +157,28 @@ export default function AdminGalleryPage() {
             key={item.id}
             className="group relative aspect-square overflow-hidden rounded-sm border border-line bg-kraft/40"
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={item.imageUrl}
               alt={item.title || "গ্যালারি ছবি"}
-              fill
-              unoptimized
-              className="object-cover"
+              className="h-full w-full object-cover"
             />
-            <button
-              onClick={() => handleDelete(item.id)}
-              aria-label="Delete"
-              className="absolute right-2 top-2 rounded-sm bg-ink/80 p-2 text-kraft opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
-            >
-              <FaTrash size={12} />
-            </button>
+            <div className="absolute right-2 top-2 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                onClick={() => handleEdit(item)}
+                aria-label="Edit"
+                className="rounded-sm bg-ink/80 p-2 text-kraft hover:bg-stamp"
+              >
+                <FaPen size={12} />
+              </button>
+              <button
+                onClick={() => handleDelete(item.id)}
+                aria-label="Delete"
+                className="rounded-sm bg-ink/80 p-2 text-kraft hover:bg-red-600"
+              >
+                <FaTrash size={12} />
+              </button>
+            </div>
             {item.title && (
               <span className="absolute inset-x-0 bottom-0 bg-ink/70 px-2 py-1 font-body text-xs text-kraft">
                 {item.title}

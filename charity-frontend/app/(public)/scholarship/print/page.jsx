@@ -89,17 +89,17 @@ export default function ScholarshipPrintPage() {
     setLoaded(true);
   }, []);
 
-  // ✅ প্রিন্ট করার আগে চেক করুন
+  // check before print
   const handlePrint = () => {
     window.print();
   };
 
-  // ✅ Back button
+  // Back button
   const handleBack = () => {
     router.push("/scholarship");
   };
 
-  // ✅ PDF ডাউনলোড — শুধু ফর্মের দুটো পেজ, নেভবার/ফুটার ছাড়া
+  // PDF download
   const handleDownloadPdf = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
@@ -133,7 +133,7 @@ export default function ScholarshipPrintPage() {
         const imgData = canvas.toDataURL("image/png");
 
         if (i > 0) pdf.addPage();
-        // A4 এর সাথে exactly মিলিয়ে বসানো — 210mm x 297mm
+        // A4 page match — 210mm x 297mm
         pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
       }
 
@@ -163,7 +163,7 @@ export default function ScholarshipPrintPage() {
         }
       `}</style>
 
-      {/* ✅ Print Controls - print এ লুকাবে */}
+      {/* Print Controls */}
       <div className="no-print mx-auto mb-6 flex max-w-[210mm] flex-wrap items-center justify-between gap-4 px-2">
         <div className="flex items-center gap-4">
           <button

@@ -1,23 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+
+import { usePathname} from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { isLoaded, isSignedIn } = useUser();
   const isLoginPage = pathname === "/admin/login";
-  const { isAuthenticated, loading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoginPage && !loading && !isAuthenticated) {
-      router.replace("/admin/login");
-    }
-  }, [isLoginPage, loading, isAuthenticated, router]);
-
-  // লগইন পেজ সাইডবার ছাড়া, নিজস্ব সেন্টার্ড লেআউটে দেখানো হয়
   if (isLoginPage) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-kraft px-6 py-10 font-body text-ink">
@@ -26,7 +18,7 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  if (loading) {
+  if (!isLoaded) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-kraft font-body text-sm text-ink-muted">
         লোড হচ্ছে...
@@ -34,9 +26,16 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  if (!isAuthenticated) {
-    // redirect চলাকালীন সংক্ষিপ্ত মুহূর্তের জন্য কিছু রেন্ডার হবে না
-    return null;
+   // Not authenticated - redirect to login
+  if (!isSignedIn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-kraft font-body text-sm text-ink-muted">
+        <p>অনুগ্রহ করে লগইন করুন।</p>
+        <a href="/admin/login" className="text-marigold underline ml-2">
+          লগইন পেজে যান
+        </a>
+      </div>
+    );
   }
 
   return (

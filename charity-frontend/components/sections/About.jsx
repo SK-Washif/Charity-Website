@@ -105,7 +105,7 @@ export default function About() {
           </motion.a> */}
         </motion.div>
 
-        {/* ডান পাশ: ইমেজ কোলাজ - প্রফেশনাল স্টাইল */}
+        {/* ডান পাশ: ইমেজ কোলাজ */}
         <motion.div
           initial={{ opacity: 0, scale: 0.94 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -160,7 +160,7 @@ export default function About() {
             </div>
           </motion.div>
 
-          {/* ভাসমান স্ট্যাট ব্যাজ */}
+          {/* স্ট্যাট ব্যাজ */}
           <motion.div
             variants={floatingBadge}
             initial="hidden"
@@ -179,7 +179,7 @@ export default function About() {
             </span>
           </motion.div>
 
-          {/* Decorative Elements - প্রফেশনাল টাচ */}
+          {/* Decorative Elements */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -204,7 +204,7 @@ export default function About() {
         </motion.div>
       </div>
 
-      {/* মিশন / ভিশন / স্বচ্ছতা — আগের মতোই */}
+      {/* মিশন / ভিশন / স্বচ্ছতা  */}
       <div className="mt-16 grid gap-8 md:grid-cols-3">
         {values.map((v, i) => (
           <motion.div

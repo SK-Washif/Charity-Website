@@ -1,38 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import {
   FaTachometerAlt,
+  FaImages as FaHeroImages,
+  FaChartBar,
   FaInfoCircle,
   FaHandsHelping,
   FaImages,
+  FaGraduationCap,
   FaPhoneAlt,
+  FaHandHoldingHeart,
   FaSignOutAlt,
 } from "react-icons/fa";
-import { logout } from "@/lib/auth";
 import Stamp from "@/components/ui/Stamp";
 
 const links = [
   { href: "/admin/dashboard", label: "ড্যাশবোর্ড", icon: FaTachometerAlt },
+  { href: "/admin/hero", label: "ব্যানার (Hero)", icon: FaHeroImages },
+  { href: "/admin/stats", label: "পরিসংখ্যান", icon: FaChartBar },
   { href: "/admin/about", label: "আমাদের কথা", icon: FaInfoCircle },
-  { href: "/admin/services", label: "সেবাসমূহ", icon: FaHandsHelping },
+  { href: "/admin/programs", label: "সেবাসমূহ", icon: FaHandsHelping },
   { href: "/admin/gallery", label: "গ্যালারি", icon: FaImages },
+  { href: "/admin/scholarship-preview", label: "শিক্ষাবৃত্তি প্রিভিউ", icon: FaGraduationCap },
   { href: "/admin/contact", label: "যোগাযোগ", icon: FaPhoneAlt },
+  { href: "/admin/donation", label: "অনুদান তথ্য", icon: FaHandHoldingHeart },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
+  const { signOut } = useClerk();
 
   async function handleLogout() {
-    try {
-      await logout();
-    } catch {
-      // ব্যাকএন্ড না থাকলেও UI থেকে সেশন ক্লিয়ার করে লগইন পেজে পাঠানো হবে
-    } finally {
-      router.replace("/admin/login");
-    }
+    await signOut({ redirectUrl: "/admin/login" });
   }
 
   return (
@@ -44,7 +46,7 @@ export default function AdminSidebar() {
         </span>
       </div>
 
-      <nav className="flex flex-col gap-1 px-3 py-4 md:h-[calc(100vh-73px)] md:justify-between">
+      <nav className="flex flex-col gap-1 overflow-y-auto px-3 py-4 md:h-[calc(100vh-73px)] md:justify-between">
         <div className="flex flex-col gap-1">
           {links.map((l) => {
             const Icon = l.icon;
