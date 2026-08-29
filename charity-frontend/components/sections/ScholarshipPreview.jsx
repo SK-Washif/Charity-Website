@@ -1,10 +1,15 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { FaGraduationCap, FaArrowRight } from "react-icons/fa";
+import { FaGraduationCap, FaArrowRight, FaSpinner } from "react-icons/fa";
+import { api } from "@/lib/api";
 import DonateButton from "@/components/ui/DonateButton";
+
+//Default Image
+const DEFAULT_IMAGE = "/images/scholarship-preview.jpg";
 
 // Animation variants
 const fadeUp = {
@@ -27,8 +32,63 @@ const imageVariants = {
 };
 
 export default function ScholarshipPreview() {
+  const [imageUrl, setImageUrl] = useState(DEFAULT_IMAGE);
+  const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  //Real API থেকে Data Fetch + Default Fallback
+  const fetchScholarshipPreview = useCallback(async () => {
+    try {
+      setLoading(true);
+      setImageError(false);
+      
+      const data = await api.getScholarshipPreview();
+      
+      console.log("📥 Client fetch data:", data);
+      
+      //Check if data exists and has imageUrl
+      if (data && data.imageUrl && data.imageUrl.trim() !== '') {
+        console.log("✅ Scholarship image loaded:", data.imageUrl);
+        setImageUrl(data.imageUrl);
+        setImageError(false);
+      } else {
+        console.log("ℹ️ No scholarship image found, using default");
+        setImageUrl(DEFAULT_IMAGE);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch scholarship preview:", error);
+      setImageUrl(DEFAULT_IMAGE);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchScholarshipPreview();
+  }, [fetchScholarshipPreview]);
+
+  //Handle image error
+  const handleImageError = useCallback(() => {
+    console.error("❌ Image failed to load:", imageUrl);
+    setImageError(true);
+    setImageUrl(DEFAULT_IMAGE);
+  }, [imageUrl]);
+
+  // Loading State
+  if (loading) {
+    return (
+      <section id="scholarship" className="anchor-section section border-t border-line bg-ink text-kraft mb-24">
+        <div className="container-xl">
+          <div className="flex items-center justify-center py-16">
+            <FaSpinner className="animate-spin text-marigold text-3xl" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section id="scholarship" className="anchor-section section border-t border-line bg-ink text-kraft mb-24 ">
+    <section id="scholarship" className="anchor-section section border-t border-line bg-ink text-kraft mb-24">
       <div className="container-xl">
         <div className="grid items-center gap-10 md:grid-cols-2">
           {/* Left Side - Text Content */}
@@ -106,20 +166,19 @@ export default function ScholarshipPreview() {
             className="relative mx-auto w-full max-w-md"
           >
             <div className="relative h-[250px] md:h-[280px] w-full overflow-hidden rounded-2xl bg-marigold/10 shadow-2xl">
-              <Image
-                src="/images/scholarship-preview.jpg"
+              {/*Use img tag instead of Next.js Image for better error handling */}
+              <img
+                src={imageUrl}
                 alt="শিক্ষাবৃত্তি প্রদান অনুষ্ঠান"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-700"
-                priority
-                onError={(e) => {
-                  e.target.style.display = "none";
-                }}
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                onError={handleImageError}
+                loading="eager"
               />
-              {/* Fallback placeholder */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-marigold/5">
-                {/* <FaGraduationCap className="text-6xl text-marigold/30" /> */}
-                {/* <span className="text-ink/30 font-display text-sm mt-2">শিক্ষাবৃত্তি</span> */}
+              
+              {/* Fallback placeholder - shows when image fails */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-marigold/5 pointer-events-none">
+                <FaGraduationCap className="text-6xl text-marigold/30" />
+                <span className="text-ink/30 font-display text-sm mt-2">শিক্ষাবৃত্তি</span>
               </div>
 
               {/* Floating Badge */}

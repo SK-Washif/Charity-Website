@@ -1,0 +1,14 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Backend
+charity-backend/.env
+charity-backend/.env.local
+
+# Frontend
+charity-frontend/.env
+charity-frontend/.env.local

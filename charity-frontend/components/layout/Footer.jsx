@@ -1,8 +1,50 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaFacebook, FaYoutube, FaEnvelope, FaPhone, FaMapMarkerAlt, FaHeart } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import { getIcon } from "@/lib/iconMap";
+import { api } from "@/lib/api";
 import DonateButton from "@/components/ui/DonateButton";
 
 export default function Footer() {
+  const [cards, setCards] = useState([]);
+  const [social, setSocial] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  //Fetch Data from API
+  useEffect(() => {
+    fetchFooterData();
+  }, []);
+
+  const fetchFooterData = async () => {
+    try {
+      setLoading(true);
+      const [cardsData, socialData] = await Promise.all([
+        api.getContactCards(),
+        api.getSocialLinks(),
+      ]);
+
+      if (Array.isArray(cardsData) && cardsData.length > 0) {
+        setCards(cardsData);
+      } else {
+        setCards([]);
+      }
+
+      if (Array.isArray(socialData) && socialData.length > 0) {
+        setSocial(socialData);
+      } else {
+        setSocial([]);
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch footer data:", error);
+      setCards([]);
+      setSocial([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-ink text-kraft">
       {/* Main Footer Content */}
@@ -73,43 +115,56 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* যোগাযোগ */}
+          {/*যোগাযোগ - Contact Section */}
           <div className="text-center md:text-left">
             <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">
               যোগাযোগ
             </h3>
-            <ul className="space-y-3 font-body text-sm">
-              <li className="flex items-center justify-center md:justify-start gap-3 text-kraft/70">
-                <FaPhone className="text-marigold text-sm flex-shrink-0" />
-                <span>+৮৮০ ১XXX-XXXXXX</span>
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-3 text-kraft/70">
-                <FaEnvelope className="text-marigold text-sm flex-shrink-0" />
-                <span>info@oikkotan.org</span>
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-3 text-kraft/70">
-                <FaMapMarkerAlt className="text-marigold text-sm flex-shrink-0" />
-                <span className="text-sm">সাতক্ষীরা, বাংলাদেশ</span>
-              </li>
-            </ul>
+            
+            {cards.length === 0 ? (
+              <p className="text-kraft/40 text-sm">যোগাযোগের তথ্য নেই</p>
+            ) : (
+              <ul className="space-y-3 font-body text-sm">
+                {cards.map((card) => {
+                  const Icon = getIcon(card.icon || "FaStar");
+                  return (
+                    <li key={card.id} className="flex items-center justify-center md:justify-start gap-3 text-kraft/70">
+                      <Icon className="text-marigold text-sm flex-shrink-0" />
+                      <div>
+                        <span className="text-kraft/50 text-xs">{card.label}: </span>
+                        <span>{card.value || "—"}</span>
+                        {card.note && (
+                          <span className="text-kraft/40 text-xs block md:inline md:ml-1">
+                            ({card.note})
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
 
-            {/* Social Icons */}
-            <div className="flex justify-center md:justify-start gap-4 mt-6">
-              <a 
-                href="#" 
-                aria-label="Facebook" 
-                className="bg-kraft/10 p-2.5 rounded-full hover:bg-marigold hover:text-ink transition-all duration-300 hover:scale-110"
-              >
-                <FaFacebook className="text-kraft/70 hover:text-ink text-lg" />
-              </a>
-              <a 
-                href="#" 
-                aria-label="YouTube" 
-                className="bg-kraft/10 p-2.5 rounded-full hover:bg-marigold hover:text-ink transition-all duration-300 hover:scale-110"
-              >
-                <FaYoutube className="text-kraft/70 hover:text-ink text-lg" />
-              </a>
-            </div>
+            {/*Social Icons*/}
+            {social.length > 0 && (
+              <div className="flex justify-center md:justify-start gap-4 mt-6">
+                {social.map((item) => {
+                  const Icon = getIcon(item.icon || "FaGlobe");
+                  return (
+                    <a
+                      key={item.id}
+                      href={item.url || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={item.platform}
+                      className="bg-kraft/10 p-2.5 rounded-full hover:bg-marigold hover:text-ink transition-all duration-300 hover:scale-110"
+                    >
+                      <Icon className="text-kraft/70 hover:text-ink text-lg" />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

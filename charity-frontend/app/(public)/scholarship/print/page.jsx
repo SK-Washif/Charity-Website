@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const empty = {
@@ -30,8 +30,6 @@ const empty = {
   disabilityType: "",
   siblingsCount: "",
 };
-
-/* ---------- small building blocks for the replica table ---------- */
 
 function Cell({ children, className = "", label = false, ...rest }) {
   return (
@@ -78,31 +76,41 @@ export default function ScholarshipPrintPage() {
   const [data, setData] = useState(empty);
   const [loaded, setLoaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const printRef1 = useRef(null);
+  const printRef2 = useRef(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("scholarshipFormData");
-      if (raw) setData({ ...empty, ...JSON.parse(raw) });
+      console.log("📥 Raw data from localStorage:", raw);
+      
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        console.log("📥 Parsed data:", parsed);
+        setData({ ...empty, ...parsed });
+      } else {
+        console.log("ℹ️ No data found in localStorage, redirecting to form...");
+        router.push("/scholarship");
+      }
     } catch (e) {
-      // ignore malformed data, keep blanks
+      console.error("❌ Error loading data:", e);
+      router.push("/scholarship");
     }
     setLoaded(true);
-  }, []);
+  }, [router]);
 
-  // check before print
   const handlePrint = () => {
     window.print();
   };
 
-  // Back button
   const handleBack = () => {
     router.push("/scholarship");
   };
 
-  // PDF download
   const handleDownloadPdf = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
+    
     try {
       const { jsPDF } = await import("jspdf");
       const html2canvas = (await import("html2canvas-pro")).default;
@@ -113,28 +121,52 @@ export default function ScholarshipPrintPage() {
         format: "a4",
       });
 
-      const pageIds = [
-        "scholarship-print-page-1",
-        "scholarship-print-page-2",
-      ];
-
-      for (let i = 0; i < pageIds.length; i++) {
-        const el = document.getElementById(pageIds[i]);
-        if (!el) continue;
-
-        const canvas = await html2canvas(el, {
-          scale: 2,
+      // ✅ Page 1
+      const el1 = document.getElementById("scholarship-print-page-1");
+      if (el1) {
+        const canvas1 = await html2canvas(el1, {
+          scale: 3,
           useCORS: true,
           backgroundColor: "#ffffff",
-          windowWidth: el.scrollWidth,
-          windowHeight: el.scrollHeight,
+          logging: false,
+          width: el1.scrollWidth,
+          height: el1.scrollHeight,
+          windowWidth: el1.scrollWidth,
+          windowHeight: el1.scrollHeight,
+          onclone: (clonedDoc) => {
+            // ✅ Ensure tables are properly rendered in clone
+            const tables = clonedDoc.querySelectorAll("table");
+            tables.forEach(table => {
+              table.style.borderCollapse = "collapse";
+            });
+          }
         });
+        const imgData1 = canvas1.toDataURL("image/png");
+        pdf.addImage(imgData1, "PNG", 0, 0, 210, 297);
+      }
 
-        const imgData = canvas.toDataURL("image/png");
-
-        if (i > 0) pdf.addPage();
-        // A4 page match — 210mm x 297mm
-        pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
+      // ✅ Page 2
+      const el2 = document.getElementById("scholarship-print-page-2");
+      if (el2) {
+        pdf.addPage();
+        const canvas2 = await html2canvas(el2, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          width: el2.scrollWidth,
+          height: el2.scrollHeight,
+          windowWidth: el2.scrollWidth,
+          windowHeight: el2.scrollHeight,
+          onclone: (clonedDoc) => {
+            const tables = clonedDoc.querySelectorAll("table");
+            tables.forEach(table => {
+              table.style.borderCollapse = "collapse";
+            });
+          }
+        });
+        const imgData2 = canvas2.toDataURL("image/png");
+        pdf.addImage(imgData2, "PNG", 0, 0, 210, 297);
       }
 
       pdf.save("নুরুল-বাছেরা-শিক্ষাবৃত্তি-আবেদন-ফর্ম.pdf");
@@ -150,16 +182,53 @@ export default function ScholarshipPrintPage() {
     }
   };
 
-  if (!loaded) return null;
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-ink-muted">লোড হচ্ছে...</p>
+      </div>
+    );
+  }
+
+  const hasData = Object.values(data).some(value => value !== "");
+  if (!hasData && loaded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-ink-muted text-lg">কোনো ডেটা পাওয়া যায়নি।</p>
+        <button
+          onClick={handleBack}
+          className="mt-4 rounded-md bg-stamp px-6 py-2.5 font-body font-semibold text-white hover:opacity-90 transition"
+        >
+          ফর্মে ফিরে যান
+        </button>
+      </div>
+    );
+  }
 
   return (
     <>
       <style>{`
         @page { size: A4; margin: 0; }
         @media print {
-          html, body { background: white; }
+          html, body { background: white; margin: 0; padding: 0; }
           .no-print { display: none !important; }
           nav, header, footer { display: none !important; }
+          #scholarship-print-page-1, #scholarship-print-page-2 {
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 10mm !important;
+            width: 100% !important;
+            height: 100% !important;
+            page-break-after: always;
+          }
+        }
+        /* ✅ Print styles for table */
+        table {
+          border-collapse: collapse !important;
+          width: 100% !important;
+        }
+        td, th {
+          border: 1px solid black !important;
         }
       `}</style>
 
@@ -197,6 +266,7 @@ export default function ScholarshipPrintPage() {
       {/* ================= PAGE 1 ================= */}
       <div
         id="scholarship-print-page-1"
+        ref={printRef1}
         className="mx-auto w-[210mm] h-[297mm] overflow-hidden bg-white p-[10mm] print:break-after-page print:p-[10mm] print:shadow-none shadow-lg text-ink"
       >
         <div className="flex items-start justify-between">
@@ -230,11 +300,11 @@ export default function ScholarshipPrintPage() {
 
             <tr>
               <Cell label>শিক্ষার্থীর নাম (বাংলা)</Cell>
-              <Cell colSpan={3}>{data.studentNameBn}</Cell>
+              <Cell colSpan={3}>{data.studentNameBn || ""}</Cell>
             </tr>
             <tr>
               <Cell label>শিক্ষার্থীর নাম (ইংরেজি)</Cell>
-              <Cell colSpan={3}>{data.studentNameEn}</Cell>
+              <Cell colSpan={3}>{data.studentNameEn || ""}</Cell>
             </tr>
             <tr>
               <Cell label>জন্ম তারিখ</Cell>
@@ -247,22 +317,24 @@ export default function ScholarshipPrintPage() {
               </Cell>
             </tr>
             <tr>
-              <Cell label>পিতার নাম (বাংলা)</Cell>
-              <Cell>{data.fatherNameBn}</Cell>
+              <Cell label="পিতার নাম (বাংলা)" className="align-middle">
+                {data.fatherNameBn || ""}
+              </Cell>
+              <Cell></Cell>
               <Cell label>শিক্ষার্থীর মোবাইল নম্বর</Cell>
-              <Cell>{data.studentMobile}</Cell>
+              <Cell>{data.studentMobile || ""}</Cell>
             </tr>
             <tr>
-              <Cell label>পিতার নাম (ইংরেজি)</Cell>
-              <Cell>{data.fatherNameEn}</Cell>
+              <Cell label>পিতার নাম (ইংরেজি)এন.আই.ডি নম্বর</Cell>
+              <Cell>{data.fatherNameEn || ""}</Cell>
               <Cell label>মাতার নাম (বাংলা)</Cell>
-              <Cell>{data.motherNameBn}</Cell>
+              <Cell>{data.motherNameBn || ""}</Cell>
             </tr>
             <tr>
               <Cell label>পিতার এন.আই.ডি নম্বর</Cell>
               <Cell></Cell>
               <Cell label>মাতার নাম (ইংরেজি)</Cell>
-              <Cell>{data.motherNameEn}</Cell>
+              <Cell>{data.motherNameEn || ""}</Cell>
             </tr>
             <tr>
               <Cell label>পিতার মোবাইল নম্বর</Cell>
@@ -274,33 +346,33 @@ export default function ScholarshipPrintPage() {
             <SectionRow left="স্থায়ী ঠিকানা" right="বর্তমান ঠিকানা" />
             <tr>
               <Cell label>বিভাগ</Cell>
-              <Cell>{data.permanentDivision}</Cell>
+              <Cell>{data.permanentDivision || ""}</Cell>
               <Cell label>বিভাগ</Cell>
-              <Cell>{data.currentDivision}</Cell>
+              <Cell>{data.currentDivision || ""}</Cell>
             </tr>
             <tr>
               <Cell label>জেলা</Cell>
-              <Cell>{data.permanentDistrict}</Cell>
+              <Cell>{data.permanentDistrict || ""}</Cell>
               <Cell label>জেলা</Cell>
-              <Cell>{data.currentDistrict}</Cell>
+              <Cell>{data.currentDistrict || ""}</Cell>
             </tr>
             <tr>
               <Cell label>উপজেলা</Cell>
-              <Cell>{data.permanentUpazila}</Cell>
+              <Cell>{data.permanentUpazila || ""}</Cell>
               <Cell label>উপজেলা</Cell>
-              <Cell>{data.currentUpazila}</Cell>
+              <Cell>{data.currentUpazila || ""}</Cell>
             </tr>
             <tr>
               <Cell label>পৌরসভা/ইউনিয়ন/সিটি কর্পোরেশন</Cell>
-              <Cell>{data.permanentMunicipality}</Cell>
+              <Cell>{data.permanentMunicipality || ""}</Cell>
               <Cell label>পৌরসভা/ইউনিয়ন/সিটি কর্পোরেশন</Cell>
-              <Cell>{data.currentMunicipality}</Cell>
+              <Cell>{data.currentMunicipality || ""}</Cell>
             </tr>
             <tr>
               <Cell label>গ্রাম</Cell>
-              <Cell>{data.permanentVillage}</Cell>
+              <Cell>{data.permanentVillage || ""}</Cell>
               <Cell label>গ্রাম</Cell>
-              <Cell>{data.currentVillage}</Cell>
+              <Cell>{data.currentVillage || ""}</Cell>
             </tr>
 
             <SectionRow
@@ -311,20 +383,17 @@ export default function ScholarshipPrintPage() {
               <Cell label>প্রতিষ্ঠানের নাম</Cell>
               <Cell></Cell>
               <Cell label>বিভাগ</Cell>
-              <Cell>{data.hscGroup}</Cell>
+              <Cell>{data.hscGroup || ""}</Cell>
             </tr>
             <tr>
               <Cell label>উত্তীর্ণ হওয়ার বছর</Cell>
               <Cell></Cell>
               <Cell label colSpan={2}>প্রতিষ্ঠানের নাম:</Cell>
-              
             </tr>
-            
             <tr>
               <Cell label>শিক্ষাবোর্ড</Cell>
               <Cell></Cell>
               <Cell colSpan={2}></Cell>
-              
             </tr>
             <tr>
               <Cell label>রোল নম্বর</Cell>
@@ -340,13 +409,11 @@ export default function ScholarshipPrintPage() {
             </tr>
             <tr>
               <Cell label>ফলাফল (জিপিএ)</Cell>
-              <Cell>{data.gpa}</Cell>
-              
+              <Cell>{data.gpa || ""}</Cell>
             </tr>
-
             <tr>
               <Cell label>ফলাফল (জিপিএ) — ৪র্থ বিষয় ছাড়া</Cell>
-              <Cell>{data.gpaWithout4th}</Cell>
+              <Cell>{data.gpaWithout4th || ""}</Cell>
             </tr>
 
             <SectionRow left="অভিভাবকের তথ্য" right="অন্যান্য তথ্য" />
@@ -371,7 +438,7 @@ export default function ScholarshipPrintPage() {
                 প্রতিবন্ধকতা?
               </Cell>
               <Cell>
-                {data.hasDisability}
+                {data.hasDisability || ""}
                 {data.hasDisability === "হ্যাঁ" && data.disabilityType
                   ? ` — ${data.disabilityType}`
                   : ""}
@@ -389,7 +456,7 @@ export default function ScholarshipPrintPage() {
               <Cell label>অভিভাবকের NID নম্বর</Cell>
               <Cell></Cell>
               <Cell label>অভিভাবকের বাৎসরিক আয় (টাকায়)</Cell>
-              <Cell>{data.guardianYearlyIncome}</Cell>
+              <Cell>{data.guardianYearlyIncome || ""}</Cell>
             </tr>
             <tr>
               <Cell label>ঠিকানা</Cell>
@@ -404,6 +471,7 @@ export default function ScholarshipPrintPage() {
       {/* ================= PAGE 2 ================= */}
       <div
         id="scholarship-print-page-2"
+        ref={printRef2}
         className="mx-auto w-[210mm] h-[297mm] overflow-hidden bg-white p-[12mm] print:p-[12mm] print:shadow-none shadow-lg text-ink"
       >
         <p className="border border-black bg-neutral-100 px-3 py-2 font-body text-[13px]">
@@ -414,19 +482,20 @@ export default function ScholarshipPrintPage() {
             : ""}:
         </p>
 
-        <table className="w-full border-collapse border-x border-b border-black">
+        {/* ✅ Fixed Table with proper borders */}
+        <table className="w-full border-collapse border border-black">
           <thead>
             <tr>
-              <th className="w-[10%] border border-black py-1.5 font-body text-[13px] font-bold">
+              <th className="w-[10%] border border-black py-1.5 font-body text-[13px] font-bold text-center">
                 ক্র:নং
               </th>
-              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold">
+              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold text-center">
                 নাম
               </th>
-              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold">
+              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold text-center">
                 অধ্যয়নকৃত শ্রেণি
               </th>
-              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold">
+              <th className="w-[30%] border border-black py-1.5 font-body text-[13px] font-bold text-center">
                 কে পড়াশোনার খরচ বহন করে?
               </th>
             </tr>
@@ -434,10 +503,12 @@ export default function ScholarshipPrintPage() {
           <tbody>
             {[1, 2, 3, 4].map((n) => (
               <tr key={n}>
-                <Cell className="h-9 text-center">{n}</Cell>
-                <Cell></Cell>
-                <Cell></Cell>
-                <Cell></Cell>
+                <td className="border border-black px-1.5 py-3 text-center font-body text-[14px]">
+                  {n}
+                </td>
+                <td className="border border-black px-1.5 py-3 font-body text-[14px]"></td>
+                <td className="border border-black px-1.5 py-3 font-body text-[14px]"></td>
+                <td className="border border-black px-1.5 py-3 font-body text-[14px]"></td>
               </tr>
             ))}
           </tbody>

@@ -10,7 +10,7 @@ const initialForm = {
   motherNameEn: "",
   studentMobile: "",
   gender: "",
-  hscGroup: "", // ✅ নতুন
+  hscGroup: "",
   permanentDivision: "",
   permanentDistrict: "",
   permanentUpazila: "",
@@ -59,24 +59,24 @@ export default function ScholarshipPage() {
     setError("");
     setSubmitting(true);
 
+    //localStorage এ save
+    localStorage.setItem("scholarshipFormData", JSON.stringify(form));
+    console.log("📤 Data saved to localStorage, redirecting to print page...");
+
+    //Immediately redirect to print page (no waiting for API)
+    router.push("/scholarship/print");
+
+    //Background এ API call করুন
     try {
       const result = await submitScholarship(form);
-
       if (result.success) {
-        localStorage.setItem("scholarshipFormData", JSON.stringify(form));
-        router.push("/scholarship/print");
+        console.log("Scholarship submitted successfully to Google Sheets");
       } else {
-        setError(`দুঃখিত, ফর্ম জমা দেওয়া যায়নি: ${result.error || "অজানা ত্রুটি"}`);
-        setSubmitting(false);
+        console.error("Scholarship submission failed:", result.error);
       }
     } catch (err) {
-      if (err instanceof TypeError) {
-        setError(
-          "দুঃখিত, সার্ভারের সাথে সংযোগ করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
-        );
-      } else {
-        setError(`দুঃখিত, ফর্ম জমা দেওয়া যায়নি: ${err.message}`);
-      }
+      console.error("Background API error:", err);
+    } finally {
       setSubmitting(false);
     }
   }
@@ -128,7 +128,6 @@ export default function ScholarshipPage() {
                   maxLength="10"
                 />
               </div>
-              
             </Field>
 
             <Field label="এইচ.এস.সি বিভাগ" required>
@@ -176,8 +175,6 @@ export default function ScholarshipPage() {
                 ))}
               </div>
             </Field>
-
-            
           </div>
         </fieldset>
 
@@ -320,25 +317,12 @@ export default function ScholarshipPage() {
           </div>
         </fieldset>
 
-        {/* শিক্ষা ফলাফল - এখানে hscGroup যোগ করা হয়েছে */}
+        {/* শিক্ষা ফলাফল */}
         <fieldset className="space-y-4">
           <legend className="label-caps mb-2 text-stamp">
             শিক্ষা ফলাফল (এস.এস.সি)
           </legend>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* <Field label="এইচ.এস.সি বিভাগ" required>
-              <select
-                required
-                className={inputClass}
-                value={form.hscGroup}
-                onChange={(e) => update("hscGroup", e.target.value)}
-              >
-                <option value="">নির্বাচন করুন</option>
-                <option value="বিজ্ঞান">বিজ্ঞান</option>
-                <option value="মানবিক">মানবিক</option>
-                <option value="ব্যবসা শিক্ষা">ব্যবসা শিক্ষা</option>
-              </select>
-            </Field> */}
             <Field label="ফলাফল (জিপিএ)" required>
               <input
                 required

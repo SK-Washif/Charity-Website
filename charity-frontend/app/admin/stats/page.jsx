@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { FaPen, FaTrash, FaPlus } from "react-icons/fa";
 import { api } from "@/lib/api";
-import { loadCollection, saveCollection, makeId } from "@/lib/localStore";
+import { loadCollection, saveCollection } from "@/lib/localStore";
 import { getIcon } from "@/lib/iconMap";
 import IconPicker from "@/components/admin/IconPicker";
 import Field from "@/components/forms/Field";
@@ -27,28 +27,48 @@ export default function AdminStatsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await api.getStats();
-        setStats(Array.isArray(data) && data.length ? data : defaultStats);
-      } catch {
+  //Fetch Stats - Real API থেকে ডেটা আনে
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getStats();
+      
+      if (Array.isArray(data) && data.length > 0) {
+        const mappedData = data.map((item) => ({
+          id: item._id || item.id,
+          label: item.label,
+          value: item.value,
+          suffix: item.suffix || "",
+          icon: item.icon || "FaStar",
+        }));
+        setStats(mappedData);
+        saveCollection(STORE_KEY, mappedData);
+      } else {
         setStats(loadCollection(STORE_KEY, defaultStats));
-      } finally {
-        setLoading(false);
       }
-    })();
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+      setStats(loadCollection(STORE_KEY, defaultStats));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  async function persist(next) {
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  //Real API + localStorage Backup
+  const persist = useCallback(async (next) => {
     setStats(next);
     saveCollection(STORE_KEY, next);
     try {
       await api.updateStats(next);
-    } catch {
-      /* ব্যাকএন্ড আনরিচেবল — localStorage-ই এখন সোর্স অফ ট্রুথ */
+    } catch (error) {
+      console.error("Failed to save to backend:", error);
+      toast.error("ব্যাকএন্ডে সংরক্ষণ করতে সমস্যা হয়েছে। স্থানীয়ভাবে সেভ করা হয়েছে।");
     }
-  }
+  }, []);
 
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -59,7 +79,8 @@ export default function AdminStatsPage() {
     setEditingId(null);
   }
 
-  function handleSubmit(e) {
+  //Create/Update - Real API
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!form.label.trim() || !form.value.trim()) {
       toast.error("লেবেল ও মান আবশ্যক।");
@@ -67,16 +88,52 @@ export default function AdminStatsPage() {
     }
     setSaving(true);
 
-    let next;
-    if (editingId) {
-      next = stats.map((s) => (s.id === editingId ? { ...s, ...form } : s));
-      toast.success("কার্ড আপডেট হয়েছে।");
-    } else {
-      next = [...stats, { id: makeId(), ...form }];
-      toast.success("নতুন কার্ড যোগ হয়েছে।");
+    try {
+      let next;
+      let savedItem;
+
+      if (editingId) {
+        //Update - Real API
+        const updateData = {
+          label: form.label,
+          value: form.value,
+          suffix: form.suffix || "",
+          icon: form.icon,
+        };
+        savedItem = await api.updateStats([...stats.map(s => 
+          s.id === editingId ? { ...s, ...updateData } : s
+        )]);
+        //UI Update
+        next = stats.map((s) => 
+          (s.id === editingId) ? { ...s, ...updateData } : s
+        );
+        toast.success("কার্ড আপডেট হয়েছে ✅");
+      } else {
+        //Create - Real API
+        const newData = {
+          id: Date.now().toString(),
+          label: form.label,
+          value: form.value,
+          suffix: form.suffix || "",
+          icon: form.icon,
+        };
+        next = [...stats, newData];
+        savedItem = await api.updateStats(next);
+        toast.success("নতুন কার্ড যোগ হয়েছে ✅");
+      }
+
+      //UI Update + localStorage Backup
+      await persist(next);
+      resetForm();
+
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error("সংরক্ষণ করতে সমস্যা হয়েছে।");
+      //Rollback - আবার ডেটা fetch করে
+      await fetchStats();
+    } finally {
+      setSaving(false);
     }
-    persist(next).finally(() => setSaving(false));
-    resetForm();
   }
 
   function handleEdit(stat) {
@@ -90,11 +147,22 @@ export default function AdminStatsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!confirm("এই কার্ডটি মুছে ফেলতে চান?")) return;
-    persist(stats.filter((s) => s.id !== id));
-    toast.success("কার্ড মুছে ফেলা হয়েছে।");
-    if (editingId === id) resetForm();
+    
+    try {
+      //UI থেকে Remove
+      const next = stats.filter((s) => s.id !== id);
+      await persist(next);
+      toast.success("কার্ড মুছে ফেলা হয়েছে ✅");
+      
+      if (editingId === id) resetForm();
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("মুছে ফেলতে সমস্যা হয়েছে।");
+      //Rollback
+      await fetchStats();
+    }
   }
 
   if (loading) {

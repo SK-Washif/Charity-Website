@@ -26,7 +26,7 @@ const config = {
       backgroundImage: {
         "dotted-leader": "linear-gradient(to right, var(--tw-gradient-stops))",
       },
-      // 🔥 NEW - Custom Container
+      //NEW - Custom Container
       container: {
         center: true,
         padding: {
@@ -44,7 +44,7 @@ const config = {
           "2xl": "1536px",
         },
       },
-      // 🔥 NEW - Custom Screens
+      //NEW - Custom Screens
       screens: {
         "3xl": "1920px",
         "4xl": "2560px",

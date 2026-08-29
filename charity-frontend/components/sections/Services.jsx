@@ -1,42 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  FaSearch,
-  FaUserGraduate,
-  FaMoneyBillWave,
-  FaRocket,
-  FaGlobeAsia,
-} from "react-icons/fa";
+import { getIcon } from "@/lib/iconMap"; //iconMap থেকে Import
 import DonateButton from "@/components/ui/DonateButton";
-
-const services = [
-  {
-    title: "মেধাবী শিক্ষার্থী খোঁজা",
-    text: "সারা বাংলাদেশ থেকে প্রকৃত মেধাবী ও অর্থনৈতিকভাবে দুর্বল শিক্ষার্থীদের খুঁজে বের করা — যাদের পড়াশোনা চালিয়ে যেতে আর্থিক সহায়তা প্রয়োজন।",
-    icon: FaSearch,
-  },
-  {
-    title: "শিক্ষাবৃত্তি প্রদান",
-    text: "নির্বাচিত শিক্ষার্থীদের নিয়মিত আর্থিক সহায়তা প্রদান, যাতে তারা পড়াশোনায় মনোযোগ দিতে পারে এবং ভালো ফলাফল অর্জন করতে পারে।",
-    icon: FaMoneyBillWave,
-  },
-  {
-    title: "পরিবারকে সহায়তা",
-    text: "শুধু শিক্ষার্থী নয়, তাদের পরিবারকেও সহায়তা করা — যাতে পরিবারের আর্থিক চাপ শিক্ষার্থীর পড়াশোনায় বাধা না হয়ে দাঁড়ায়।",
-    icon: FaUserGraduate,
-  },
-  {
-    title: "দক্ষতা উন্নয়ন",
-    text: "শিক্ষার্থীদের পড়াশোনার পাশাপাশি দক্ষতা উন্নয়নে প্রশিক্ষণ প্রদান, যাতে তারা ভবিষ্যতে কর্মসংস্থানের জন্য প্রস্তুত থাকে।",
-    icon: FaRocket,
-  },
-  {
-    title: "বাংলাদেশের উন্নয়নে অবদান",
-    text: "শিক্ষিত ও দক্ষ জনশক্তি তৈরি করে বাংলাদেশের সামগ্রিক উন্নয়নে অবদান রাখা — প্রতিটি শিক্ষার্থী আমাদের ভবিষ্যতের সম্পদ।",
-    icon: FaGlobeAsia,
-  },
-];
+import { api } from "@/lib/api";
 
 // Animation variants
 const fadeUp = {
@@ -65,7 +33,78 @@ const cardVariants = {
   },
 };
 
+// ✅ Default fallback data (যদি API থেকে না আসে)
+const defaultServices = [
+  {
+    title: "মেধাবী শিক্ষার্থী খোঁজা",
+    text: "সারা বাংলাদেশ থেকে প্রকৃত মেধাবী ও অর্থনৈতিকভাবে দুর্বল শিক্ষার্থীদের খুঁজে বের করা — যাদের পড়াশোনা চালিয়ে যেতে আর্থিক সহায়তা প্রয়োজন।",
+    icon: getIcon("FaSearch"), //iconMap থেকে নেওয়া
+  },
+  {
+    title: "শিক্ষাবৃত্তি প্রদান",
+    text: "নির্বাচিত শিক্ষার্থীদের নিয়মিত আর্থিক সহায়তা প্রদান, যাতে তারা পড়াশোনায় মনোযোগ দিতে পারে এবং ভালো ফলাফল অর্জন করতে পারে।",
+    icon: getIcon("FaMoneyBillWave"),
+  },
+  {
+    title: "পরিবারকে সহায়তা",
+    text: "শুধু শিক্ষার্থী নয়, তাদের পরিবারকেও সহায়তা করা — যাতে পরিবারের আর্থিক চাপ শিক্ষার্থীর পড়াশোনায় বাধা না হয়ে দাঁড়ায়।",
+    icon: getIcon("FaUserGraduate"),
+  },
+  {
+    title: "দক্ষতা উন্নয়ন",
+    text: "শিক্ষার্থীদের পড়াশোনার পাশাপাশি দক্ষতা উন্নয়নে প্রশিক্ষণ প্রদান, যাতে তারা ভবিষ্যতে কর্মসংস্থানের জন্য প্রস্তুত থাকে।",
+    icon: getIcon("FaRocket"),
+  },
+  {
+    title: "বাংলাদেশের উন্নয়নে অবদান",
+    text: "শিক্ষিত ও দক্ষ জনশক্তি তৈরি করে বাংলাদেশের সামগ্রিক উন্নয়নে অবদান রাখা — প্রতিটি শিক্ষার্থী আমাদের ভবিষ্যতের সম্পদ।",
+    icon: getIcon("FaGlobeAsia"),
+  },
+];
+
 export default function Services() {
+  const [services, setServices] = useState(defaultServices);
+  const [loading, setLoading] = useState(true);
+
+  //Real API থেকে Data Fetch
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const data = await api.getPrograms();
+      console.log("📥 API Response:", data);
+
+      if (Array.isArray(data) && data.length) {
+        //API থেকে Data ম্যাপিং (icon string → component)
+        const mappedData = data.map((item) => ({
+          title: item.title,
+          text: item.text,
+          icon: getIcon(item.icon), //iconMap থেকে Auto Detect
+        }));
+        console.log("📊 Mapped Data:", mappedData);
+        setServices(mappedData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section id="services" className="anchor-section section border-t border-line bg-paper mb-24">
+        <div className="container-6xl">
+          <div className="text-center py-12">
+            <p className="text-ink-muted">লোড হচ্ছে...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="services" className="anchor-section section border-t border-line bg-paper mb-24">
       <div className="container-6xl">
@@ -99,7 +138,7 @@ export default function Services() {
           </motion.p>
         </motion.div>
 
-        {/* Services Grid */}
+        {/* Services Grid - Dynamic */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -111,7 +150,7 @@ export default function Services() {
             const Icon = service.icon;
             return (
               <motion.div
-                key={service.title}
+                key={service.title + index}
                 variants={cardVariants}
                 custom={index}
                 className="group rounded-2xl bg-kraft/60 p-6 transition-all hover:bg-paper hover:shadow-xl border border-line hover:border-marigold/30"
@@ -134,7 +173,7 @@ export default function Services() {
           })}
         </motion.div>
 
-        {/* Bottom Note */}
+        {/* Bottom Note & Donate CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -151,20 +190,6 @@ export default function Services() {
               <span className="text-marigold font-semibold">✦</span>
             </p>
           </div>
-        </motion.div>
-
-        {/* Donate CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="mt-6 text-center"
-        >
-          <p className="mx-auto max-w-xl font-body text-sm text-ink-muted leading-relaxed">
-            আপনার সামান্য অনুদানও একজন শিক্ষার্থীর জীবনে বড় পরিবর্তন
-            আনতে পারে — আজই এই মহৎ উদ্যোগের অংশ হোন।
-          </p>
           <div className="mt-5 flex justify-center">
             <DonateButton />
           </div>

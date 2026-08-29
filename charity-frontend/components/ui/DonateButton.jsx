@@ -6,34 +6,100 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   FaHeart,
   FaTimes,
-  FaMobileAlt,
   FaUniversity,
   FaCreditCard,
   FaCheckCircle,
+  FaSpinner,
 } from "react-icons/fa";
+import { api } from "@/lib/api";
 
-const mobileBanking = [
-  {
-    name: "bKash",
-    color: "#E2136E",
-    number: "+৮৮০ ১XXX-XXXXXX",
-    note: "Send Money (Personal)",
-  },
-  {
-    name: "Nagad",
-    color: "#F6921E",
-    number: "+৮৮০ ১XXX-XXXXXX",
-    note: "Send Money (Personal)",
-  },
-  {
-    name: "Rocket",
-    color: "#8C3494",
-    number: "+৮৮০ ১XXX-XXXXXXX",
-    note: "Send Money (Personal)",
-  },
+//Default Data
+const defaultMethods = [
+  { name: "bKash", logo: "/images/bkash-logo.png", color: "#E2136E", number: "+৮৮০ ১XXX-XXXXXX", note: "Send Money (Personal)" },
+  { name: "Nagad", logo: "/images/nagad-logo.png", color: "#F6921E", number: "+৮৮০ ১XXX-XXXXXX", note: "Send Money (Personal)" },
+  { name: "Rocket", logo: "/images/rocket-logo.png", color: "#8C3494", number: "+৮৮০ ১XXX-XXXXXXX", note: "Send Money (Personal)" },
 ];
 
+const defaultSettings = {
+  confirmationEmail: "",
+};
+
 function DonateModal({ onClose }) {
+  const [methods, setMethods] = useState(defaultMethods);
+  const [bankItems, setBankItems] = useState([]);
+  const [settings, setSettings] = useState(defaultSettings);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDonationData();
+  }, []);
+
+  const fetchDonationData = async () => {
+    try {
+      setLoading(true);
+      const [methodsData, bankItemsData, settingsData] = await Promise.all([
+        api.getDonationMethods().catch(() => []),
+        api.getBankItems().catch(() => []),
+        api.getDonationSettings().catch(() => null),
+      ]);
+
+      // Methods
+      if (Array.isArray(methodsData) && methodsData.length > 0) {
+        const mappedMethods = methodsData.map((item) => ({
+          name: item.name || "",
+          logo: item.logo || "",
+          color: item.color || "#E0A83A",
+          number: item.number || "",
+          note: item.note || "",
+        }));
+        setMethods(mappedMethods);
+      }
+
+      // Bank Items
+      if (Array.isArray(bankItemsData) && bankItemsData.length > 0) {
+        const mappedBankItems = bankItemsData.map((item) => ({
+          type: item.type || "bank",
+          name: item.name || "",
+          logo: item.logo || "",
+          accountName: item.accountName || "",
+          accountNumber: item.accountNumber || "",
+          bankBranch: item.bankBranch || "",
+          routingNumber: item.routingNumber || "",
+          note: item.note || "",
+        }));
+        setBankItems(mappedBankItems);
+      }
+
+      // Settings - email না থাকলে খালি রাখবে
+      if (settingsData && Object.keys(settingsData).length > 0) {
+        setSettings({ 
+          confirmationEmail: settingsData.confirmationEmail || "" 
+        });
+      }
+
+    } catch (error) {
+      console.error("❌ Failed to fetch donation data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <motion.div
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/70 px-4 py-8 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <div className="bg-paper rounded-2xl p-8 shadow-2xl">
+          <FaSpinner className="animate-spin text-marigold text-3xl mx-auto" />
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/70 px-4 py-8 backdrop-blur-sm"
@@ -75,114 +141,117 @@ function DonateModal({ onClose }) {
         {/* Body */}
         <div className="space-y-5 px-6 py-6">
           {/* Mobile banking */}
-          <div>
-            <h4 className="label-caps mb-3 text-ink-muted">
-              মোবাইল ব্যাংকিং
-            </h4>
-            <div className="space-y-3">
-              {mobileBanking.map((m) => (
-                <div
-                  key={m.name}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-line bg-kraft/30 px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
-                      style={{ backgroundColor: m.color }}
-                    >
-                      <FaMobileAlt size={16} />
-                    </span>
-                    <div>
-                      <p className="font-body text-sm font-semibold text-ink">
-                        {m.name}
-                      </p>
-                      <p className="font-mono text-xs text-ink-muted">
-                        {m.number}
-                      </p>
+          {methods.length > 0 && (
+            <div>
+              <h4 className="label-caps mb-3 text-ink-muted">
+                মোবাইল ব্যাংকিং
+              </h4>
+              <div className="space-y-3">
+                {methods.map((m) => (
+                  <div
+                    key={m.name}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-line bg-kraft/30 px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      {m.logo ? (
+                        <img
+                          src={m.logo}
+                          alt={m.name}
+                          className="w-10 h-10 rounded-full object-cover border border-line"
+                          onError={(e) => { e.target.src = "/images/placeholder.png"; }}
+                        />
+                      ) : (
+                        <span
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold"
+                          style={{ backgroundColor: m.color || "#E0A83A" }}
+                        >
+                          {m.name?.charAt(0) || "?"}
+                        </span>
+                      )}
+                      <div>
+                        <p className="font-body text-sm font-semibold text-ink">
+                          {m.name}
+                        </p>
+                        <p className="font-mono text-xs text-ink-muted">
+                          {m.number}
+                        </p>
+                      </div>
                     </div>
+                    {m.note && (
+                      <span className="label-caps text-[10px] text-marigold">
+                        {m.note}
+                      </span>
+                    )}
                   </div>
-                  <span className="label-caps text-[10px] text-marigold">
-                    {m.note}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Bank */}
-          <div>
-            <h4 className="label-caps mb-3 text-ink-muted">
-              ব্যাংক অ্যাকাউন্ট
-            </h4>
-            <div className="space-y-1.5 rounded-xl border border-line bg-kraft/30 px-4 py-4">
-              <div className="mb-2 flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-marigold">
-                  <FaUniversity size={16} />
-                </span>
-                <p className="font-body text-sm font-semibold text-ink">
-                  ব্যাংক ট্রান্সফার
-                </p>
+                ))}
               </div>
-              <p className="font-body text-xs text-ink-muted">
-                হিসাবের নাম:{" "}
-                <span className="text-ink">ঐক্যতান ফাউন্ডেশন</span>
-              </p>
-              <p className="font-body text-xs text-ink-muted">
-                হিসাব নম্বর:{" "}
-                <span className="font-mono text-ink">
-                  XXXX-XXXXXXX-XXX
-                </span>
-              </p>
-              <p className="font-body text-xs text-ink-muted">
-                ব্যাংক ও শাখা:{" "}
-                <span className="text-ink">
-                  XXXX ব্যাংক লিমিটেড, সাতক্ষীরা শাখা
-                </span>
-              </p>
-              <p className="font-body text-xs text-ink-muted">
-                রাউটিং নম্বর:{" "}
-                <span className="font-mono text-ink">XXXXXXXXX</span>
-              </p>
             </div>
-          </div>
+          )}
 
-          {/* Card */}
-          <div>
-            <h4 className="label-caps mb-3 text-ink-muted">
-              কার্ড / অনলাইন পেমেন্ট
-            </h4>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-marigold/40 bg-marigold/5 px-4 py-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-marigold/15 text-marigold">
-                <FaCreditCard size={16} />
-              </span>
+          {/* Bank/Card Items */}
+          {bankItems.length > 0 && bankItems.map((item, index) => (
+            <div key={index}>
+              <h4 className="label-caps mb-3 text-ink-muted">
+                {item.type === "bank" ? "ব্যাংক অ্যাকাউন্ট" : "কার্ড / অনলাইন পেমেন্ট"}
+              </h4>
+              <div className="space-y-1.5 rounded-xl border border-line bg-kraft/30 px-4 py-4">
+                <div className="mb-2 flex items-center gap-3">
+                  {item.logo ? (
+                    <img
+                      src={item.logo}
+                      alt={item.name}
+                      className="w-10 h-10 rounded-full object-cover border border-line"
+                      onError={(e) => { e.target.src = "/images/placeholder.png"; }}
+                    />
+                  ) : (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-marigold">
+                      {item.type === "bank" ? <FaUniversity size={16} /> : <FaCreditCard size={16} />}
+                    </span>
+                  )}
+                  <p className="font-body text-sm font-semibold text-ink">
+                    {item.name}
+                  </p>
+                </div>
+                {item.type === "bank" ? (
+                  <>
+                    <p className="font-body text-xs text-ink-muted">
+                      হিসাবের নাম: <span className="text-ink">{item.accountName}</span>
+                    </p>
+                    <p className="font-body text-xs text-ink-muted">
+                      হিসাব নম্বর: <span className="font-mono text-ink">{item.accountNumber}</span>
+                    </p>
+                    <p className="font-body text-xs text-ink-muted">
+                      ব্যাংক ও শাখা: <span className="text-ink">{item.bankBranch}</span>
+                    </p>
+                    <p className="font-body text-xs text-ink-muted">
+                      রাউটিং নম্বর: <span className="font-mono text-ink">{item.routingNumber}</span>
+                    </p>
+                  </>
+                ) : (
+                  <p className="font-body text-xs leading-relaxed text-ink-muted">
+                    {item.note}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/*Confirmation - শুধু email থাকলে দেখাবে */}
+          {settings.confirmationEmail && (
+            <div className="flex items-start gap-2 rounded-lg bg-ink/5 px-4 py-3">
+              <FaCheckCircle
+                className="mt-0.5 shrink-0 text-marigold"
+                size={14}
+              />
               <p className="font-body text-xs leading-relaxed text-ink-muted">
-                ক্রেডিট/ডেবিট কার্ড দিয়ে অনলাইনে অনুদান দেওয়ার ব্যবস্থা
-                শীঘ্রই চালু হচ্ছে। এখন পর্যন্ত উপরের মাধ্যমগুলো ব্যবহার
-                করুন অথবা{" "}
-                <a
-                  href="/#contact"
-                  className="text-marigold underline underline-offset-2"
-                >
-                  আমাদের সাথে যোগাযোগ করুন
-                </a>
-                ।
+                অনুদান পাঠানোর পর একটি স্ক্রিনশট{" "}
+                <span className="font-medium text-ink">
+                  {settings.confirmationEmail}
+                </span>{" "}
+                এ পাঠিয়ে দিলে আমরা রশিদ নিশ্চিত করব।
               </p>
             </div>
-          </div>
-
-          <div className="flex items-start gap-2 rounded-lg bg-ink/5 px-4 py-3">
-            <FaCheckCircle
-              className="mt-0.5 shrink-0 text-marigold"
-              size={14}
-            />
-            <p className="font-body text-xs leading-relaxed text-ink-muted">
-              অনুদান পাঠানোর পর একটি স্ক্রিনশট{" "}
-              <span className="font-medium text-ink">
-                info@oikkotan.org
-              </span>{" "}
-              এ পাঠিয়ে দিলে আমরা রশিদ নিশ্চিত করব।
-            </p>
-          </div>
+          )}
         </div>
       </motion.div>
     </motion.div>
@@ -198,7 +267,6 @@ export default function DonateButton({
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -222,7 +290,6 @@ export default function DonateButton({
         {children || "অনুদান করুন"}
       </button>
 
-      
       {mounted &&
         createPortal(
           <AnimatePresence>

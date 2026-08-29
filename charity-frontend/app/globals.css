@@ -52,28 +52,27 @@
       transition-colors hover:bg-ink hover:text-kraft;
   }
 
-  /* ================================================ */
-  /* 🔥 WIDTH FIX - এখানে পরিবর্তন করুন              */
-  /* ================================================ */
+  
+  /*WIDTH FIX */
 
-  /* Section - max-w-6xl থেকে max-w-7xl করা হয়েছে */
+  /*Section */
   .section {
     @apply mx-auto w-full max-w-7xl px-6 py-16 md:px-10 lg:px-12;
   }
 
-  /* Container Custom - পুরনো, রেখে দিচ্ছি কিন্তু ব্যবহার করবেন না */
+  /* Container Custom */
   .container-custom {
     @apply container mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  /* 🔥 NEW - Container XL (বড় screen এর জন্য) */
+  /*NEW - Container XL */
   .container-xl {
     @apply mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
     max-width: 1440px;
     width: 100%;
   }
 
-  /* 🔥 NEW - Container Full (পুরো width এর জন্য) */
+  /*NEW - Container Full */
   .container-full {
     @apply mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
     max-width: 100%;

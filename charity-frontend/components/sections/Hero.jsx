@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaArrowLeft, FaArrowRight, FaSpinner } from 'react-icons/fa';
+import { api } from '@/lib/api';
 
-// Mock Data - Backend থেকে আসার জন্য রেডি
+//Default Banners
 const defaultBanners = [
   {
     id: 1,
@@ -46,9 +47,10 @@ const defaultBanners = [
 const Hero = () => {
   const [banners, setBanners] = useState(defaultBanners);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
 
+  //Fetch Data from API
   useEffect(() => {
     fetchBanners();
   }, []);
@@ -56,14 +58,38 @@ const Hero = () => {
   const fetchBanners = async () => {
     try {
       setLoading(true);
-      // ⏳ পরে API Call করবেন
-      setTimeout(() => {
+      const data = await api.getBanners();
+      
+      console.log('📥 Hero fetch banners:', data);
+      
+      if (Array.isArray(data) && data.length > 0) {
+        //Filter only active banners
+        const activeBanners = data.filter(b => b.isActive !== false);
+        if (activeBanners.length > 0) {
+          //Map banners with proper imageUrl
+          const mappedBanners = activeBanners.map(b => ({
+            id: b.id || b._id,
+            imageUrl: b.imageUrl || b.image || '/images/banner-1.jpg',
+            title: b.title || 'শিক্ষাই আলো',
+            subtitle: b.subtitle || '',
+            description: b.description || '',
+            ctaText: b.ctaText || 'শিক্ষাবৃত্তির জন্য আবেদন করুন',
+            ctaLink: b.ctaLink || b.ctaLinks || '/scholarship',
+            order: b.order || 0,
+            isActive: b.isActive !== false,
+          }));
+          console.log('✅ Mapped banners:', mappedBanners);
+          setBanners(mappedBanners);
+        } else {
+          setBanners(defaultBanners);
+        }
+      } else {
         setBanners(defaultBanners);
-        setLoading(false);
-      }, 500);
+      }
     } catch (error) {
-      console.error('Failed to fetch banners:', error);
+      console.error('❌ Failed to fetch banners:', error);
       setBanners(defaultBanners);
+    } finally {
       setLoading(false);
     }
   };
@@ -86,6 +112,28 @@ const Hero = () => {
 
   const currentBanner = banners[currentIndex] || banners[0];
 
+  // Loading State
+  if (loading) {
+    return (
+      <section className="relative overflow-hidden bg-paper">
+        <div className="relative h-[600px] md:h-[700px] lg:h-[800px] w-full flex items-center justify-center">
+          <FaSpinner className="animate-spin text-marigold text-4xl" />
+        </div>
+      </section>
+    );
+  }
+
+  //Check if image is valid
+  const getImageUrl = (url) => {
+    if (!url) return '/images/banner-1.jpg';
+    //If it's an ImageBB URL or any valid URL, use it
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    //If it's a local path
+    return url;
+  };
+
   return (
     <section className="relative overflow-hidden bg-paper">
       <div className="relative h-[600px] md:h-[700px] lg:h-[800px] w-full">
@@ -103,21 +151,23 @@ const Hero = () => {
               background: 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)'
             }} />
             
-            {/* Image */}
+            {/* Image - using img tag for better compatibility with external URLs */}
             <div className="relative w-full h-full">
-              <Image
-                src={currentBanner.imageUrl}
+              <img
+                src={getImageUrl(currentBanner.imageUrl)}
                 alt={currentBanner.title}
-                fill
-                className="object-cover"
-                priority
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error('❌ Image failed to load:', currentBanner.imageUrl);
+                  e.target.src = '/images/banner-1.jpg';
+                }}
               />
             </div>
 
             {/* Content */}
             <div className="absolute inset-0 z-20 flex items-center">
-              <div className="container-xl mx-auto">
-                <div className="max-w-3xl">
+              <div className="container-xl mx-auto px-6 md:px-8 lg:px-12 w-full">
+                <div className="max-w-3xl ml-0 md:ml-4 lg:ml-8">
                   {/* Badge */}
                   <motion.span
                     initial={{ opacity: 0, y: 20 }}
@@ -173,7 +223,7 @@ const Hero = () => {
                     className="mt-8 flex flex-wrap gap-4"
                   >
                     <Link
-                      href="/scholarship"
+                      href={currentBanner.ctaLink || '/scholarship'}
                       className="px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105"
                       style={{
                         backgroundColor: '#FCD34D',
@@ -181,7 +231,7 @@ const Hero = () => {
                         boxShadow: '0 4px 20px rgba(252, 211, 77, 0.4)'
                       }}
                     >
-                      শিক্ষাবৃত্তির জন্য আবেদন করুন
+                      {currentBanner.ctaText || 'শিক্ষাবৃত্তির জন্য আবেদন করুন'}
                     </Link>
                     <Link
                       href="/#about"
@@ -199,9 +249,6 @@ const Hero = () => {
                 </div>
               </div>
             </div>
-
-            {/* ❌ Slide Counter REMOVED - সরানো হয়েছে */}
-
           </motion.div>
         </AnimatePresence>
 
@@ -209,14 +256,22 @@ const Hero = () => {
         {banners.length > 1 && (
           <>
             <button
-              onClick={() => setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length)}
+              onClick={() => {
+                setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+                setIsAutoPlay(false);
+                setTimeout(() => setIsAutoPlay(true), 10000);
+              }}
               className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition-all hover:scale-110"
               style={{ backdropFilter: 'blur(5px)' }}
             >
               <FaArrowLeft className="text-xl" />
             </button>
             <button
-              onClick={() => setCurrentIndex((prev) => (prev + 1) % banners.length)}
+              onClick={() => {
+                setCurrentIndex((prev) => (prev + 1) % banners.length);
+                setIsAutoPlay(false);
+                setTimeout(() => setIsAutoPlay(true), 10000);
+              }}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition-all hover:scale-110"
               style={{ backdropFilter: 'blur(5px)' }}
             >

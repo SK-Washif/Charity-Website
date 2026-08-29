@@ -2,9 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { FaUsers, FaStar, FaHandsHelping, FaClock } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { getIcon } from '@/lib/iconMap';
+import { api } from '@/lib/api';
 
-// 📌 Mock Data - Backend থেকে আসার জন্য রেডি
+// Default Data 
 const defaultStats = [
   { 
     id: 1,
@@ -38,19 +40,40 @@ const defaultStats = [
 
 const StatsSection = () => {
   const [stats, setStats] = useState(defaultStats);
+  const [loading, setLoading] = useState(true);
+
+  //Fetch Stats - Real API থেকে ডেটা আনে
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getStats();
+      
+      if (Array.isArray(data) && data.length > 0) {
+        //Real API থেকে আসা ডেটা ম্যাপিং
+        const mappedData = data.map((item) => ({
+          id: item._id || item.id,
+          label: item.label,
+          value: item.value,
+          suffix: item.suffix || '',
+          icon: getIcon(item.icon),
+        }));
+        setStats(mappedData);
+      } else {
+        //Real API খালি থাকলে Default দেখাবে
+        setStats(defaultStats);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+      //Error হলে Default দেখাবে
+      setStats(defaultStats);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      // ⏳ পরে API Call করবেন
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
-      setStats(defaultStats);
-    }
-  };
+  }, [fetchStats]);
 
   const AnimatedNumber = ({ value, suffix = '' }) => {
     const [count, setCount] = useState(0);
@@ -83,6 +106,18 @@ const StatsSection = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <section className="section bg-white border-b border-line mb-24">
+        <div className="container-custom">
+          <div className="text-center py-12">
+            <p className="text-ink-muted">লোড হচ্ছে...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section bg-white border-b border-line mb-24">
       <div className="container-custom">
@@ -91,12 +126,13 @@ const StatsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-8 font-display text-2xl md:text-3xl font-semibold text-ink"
+          className="mb-8 font-display text-2xl md:text-3xl font-semibold text-ink text-center"
         >
           এক নজরে আমাদের কার্যক্রম
         </motion.h2>
 
-        <div className="grid gap-x-10 gap-y-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Stats Cards - Center Aligned */}
+        <div className="flex flex-wrap justify-center items-center gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -106,10 +142,10 @@ const StatsSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="group bg-paper hover:bg-white rounded-xl p-6 transition-all hover:shadow-lg border border-line hover:border-primary/20"
+                className="group bg-paper hover:bg-white rounded-xl p-6 transition-all hover:shadow-lg border border-line hover:border-primary/20 w-full sm:w-[calc(50%-12px)] md:w-[calc(33.33%-16px)] lg:w-[calc(25%-18px)] min-w-[200px] max-w-[280px] flex-1"
               >
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors mb-3">
                     <Icon className="text-primary text-2xl" />
                   </div>
                   <div>

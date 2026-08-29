@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { FaPen, FaTrash, FaPlus } from "react-icons/fa";
 import { api } from "@/lib/api";
-import { loadCollection, saveCollection, makeId } from "@/lib/localStore";
+import { loadCollection, saveCollection } from "@/lib/localStore";
 import { getIcon } from "@/lib/iconMap";
 import IconPicker from "@/components/admin/IconPicker";
 import Field from "@/components/forms/Field";
@@ -29,23 +29,28 @@ export default function AdminProgramsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await api.getPrograms();
-        setServices(Array.isArray(data) && data.length ? data : defaultServices);
-      } catch {
+  //Data Fetch - Real API থেকে
+  const fetchPrograms = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.getPrograms();
+      if (Array.isArray(data) && data.length) {
+        setServices(data);
+        saveCollection(STORE_KEY, data);
+      } else {
         setServices(loadCollection(STORE_KEY, defaultServices));
-      } finally {
-        setLoading(false);
       }
-    })();
+    } catch (error) {
+      console.error("Failed to fetch programs:", error);
+      setServices(loadCollection(STORE_KEY, defaultServices));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  function persist(next) {
-    setServices(next);
-    saveCollection(STORE_KEY, next);
-  }
+  useEffect(() => {
+    fetchPrograms();
+  }, [fetchPrograms]);
 
   function handleChange(e) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -56,40 +61,50 @@ export default function AdminProgramsPage() {
     setEditingId(null);
   }
 
+  //Create/Update - Real API
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.title.trim()) {
       toast.error("শিরোনাম আবশ্যক।");
       return;
     }
+
     setSaving(true);
     try {
+      let savedItem;
+      
       if (editingId) {
-        try {
-          await api.updateProgram(editingId, form);
-        } catch {
-          
-        }
-        persist(services.map((s) => (s.id === editingId ? { ...s, ...form } : s)));
-        toast.success("সেবা আপডেট হয়েছে।");
+        //Update - Real API
+        savedItem = await api.updateProgram(editingId, form);
+        //Update UI with backend response
+        setServices(services.map((s) => 
+          (s._id || s.id) === editingId ? savedItem : s
+        ));
+        toast.success("সেবা আপডেট হয়েছে ✅");
       } else {
-        const newService = { id: makeId(), ...form };
-        try {
-          await api.createProgram(newService);
-        } catch {
-          
-        }
-        persist([...services, newService]);
-        toast.success("নতুন সেবা যোগ হয়েছে।");
+        //Create - Real API
+        savedItem = await api.createProgram(form);
+        //Add to UI with backend response
+        setServices([...services, savedItem]);
+        toast.success("নতুন সেবা যোগ হয়েছে ✅");
       }
+      
+      //Backup localStorage
+      saveCollection(STORE_KEY, services);
       resetForm();
+      
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error("সংরক্ষণ করতে সমস্যা হয়েছে।");
     } finally {
       setSaving(false);
     }
   }
 
+  //Edit - UI তে Data Load
   function handleEdit(service) {
-    setEditingId(service.id);
+    const id = service._id || service.id;
+    setEditingId(id);
     setForm({
       title: service.title,
       text: service.text,
@@ -98,16 +113,39 @@ export default function AdminProgramsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  //Delete - Real API + Proper ID
   async function handleDelete(id) {
+    console.log("🗑️ Deleting with ID:", id); // ✅ ডিবাগ লগ
+    
     if (!confirm("এই সেবাটি মুছে ফেলতে চান?")) return;
+    
     try {
+      //1. Real API Delete (সঠিক ID দিয়ে)
       await api.deleteProgram(id);
-    } catch {
       
+      //2. UI থেকে Remove (সঠিক ID দিয়ে)
+      const updatedServices = services.filter((s) => {
+        const itemId = s._id || s.id;
+        return itemId !== id;
+      });
+      
+      console.log("✅ After delete, remaining:", updatedServices.length); // ✅ ডিবাগ লগ
+      
+      setServices(updatedServices);
+      
+      //3. localStorage Update
+      saveCollection(STORE_KEY, updatedServices);
+      
+      toast.success("সেবা মুছে ফেলা হয়েছে ✅");
+      
+      if (editingId === id) resetForm();
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("মুছে ফেলতে সমস্যা হয়েছে।");
+      
+      //4. Error হলে আবার Fetch করে Refresh
+      await fetchPrograms();
     }
-    persist(services.filter((s) => s.id !== id));
-    toast.success("সেবা মুছে ফেলা হয়েছে।");
-    if (editingId === id) resetForm();
   }
 
   if (loading) {
@@ -168,9 +206,14 @@ export default function AdminProgramsPage() {
       <div className="mt-8 space-y-4">
         {services.map((s) => {
           const Icon = getIcon(s.icon);
+          //সঠিক ID নেওয়া - _id priority
+          const itemId = s._id || s.id;
+          
+          console.log("🔍 Rendering item:", { title: s.title, id: itemId }); // ✅ ডিবাগ লগ
+          
           return (
             <div
-              key={s.id}
+              key={itemId}
               className="flex items-start justify-between gap-4 rounded-sm border border-line bg-paper p-5"
             >
               <div className="flex items-start gap-3">
@@ -195,7 +238,7 @@ export default function AdminProgramsPage() {
                   <FaPen size={12} />
                 </button>
                 <button
-                  onClick={() => handleDelete(s.id)}
+                  onClick={() => handleDelete(itemId)}
                   aria-label="Delete"
                   className="rounded-sm border border-line p-2 text-ink-muted hover:bg-red-50 hover:text-red-600"
                 >

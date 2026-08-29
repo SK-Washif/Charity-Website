@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
+import { memo, useMemo, useCallback } from "react";
 import {
   FaTachometerAlt,
   FaImages as FaHeroImages,
@@ -29,16 +30,31 @@ const links = [
   { href: "/admin/donation", label: "অনুদান তথ্য", icon: FaHandHoldingHeart },
 ];
 
-export default function AdminSidebar() {
+function AdminSidebar() {
   const pathname = usePathname();
   const { signOut } = useClerk();
 
-  async function handleLogout() {
-    await signOut({ redirectUrl: "/admin/login" });
-  }
+  //Security: Clear session on logout
+  const handleLogout = useCallback(async () => {
+    try {
+      //Clear any stored sensitive data
+      localStorage.removeItem('oikkotan_admin_about');
+      localStorage.removeItem('oikkotan_admin_gallery');
+      localStorage.removeItem('oikkotan_admin_banners');
+      
+      await signOut({ redirectUrl: "/admin/login" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }, [signOut]);
+
+  //Memoize active link check for better performance
+  const isActive = useMemo(() => {
+    return (href) => pathname === href || pathname.startsWith(`${href}/`);
+  }, [pathname]);
 
   return (
-    <aside className="border-b border-line bg-paper md:w-64 md:shrink-0 md:border-b-0 md:border-r">
+    <aside className="border-b border-line bg-paper md:w-64 md:shrink-0 md:border-b-0 md:border-r md:h-screen md:sticky md:top-0">
       <div className="flex items-center gap-3 border-b border-line px-6 py-5">
         <Stamp size={36} rotate={-6} lines={["ঐক্য", "তান"]} />
         <span className="font-display text-sm font-semibold text-ink">
@@ -46,16 +62,17 @@ export default function AdminSidebar() {
         </span>
       </div>
 
-      <nav className="flex flex-col gap-1 overflow-y-auto px-3 py-4 md:h-[calc(100vh-73px)] md:justify-between">
+      <nav className="flex flex-col gap-1 overflow-y-auto px-3 py-4 h-[calc(100vh-73px)] justify-between">
         <div className="flex flex-col gap-1">
           {links.map((l) => {
             const Icon = l.icon;
-            const active = pathname === l.href;
+            const active = isActive(l.href);
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`flex items-center gap-3 rounded-sm px-3 py-2 font-body text-sm transition-colors ${
+                prefetch={true}
+                className={`flex items-center gap-3 rounded-sm px-3 py-2 font-body text-sm transition-colors duration-150 ${
                   active ? "bg-ink text-kraft" : "text-ink-muted hover:bg-kraft"
                 }`}
               >
@@ -77,3 +94,5 @@ export default function AdminSidebar() {
     </aside>
   );
 }
+
+export default memo(AdminSidebar);
