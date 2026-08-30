@@ -13,8 +13,8 @@ const defaultBanners = [
     id: 1,
     imageUrl: '/images/banner-1.jpg',
     title: 'শিক্ষাই আলো, শিক্ষাই মুক্তি',
-    subtitle: 'প্রতিটি শিশুর জন্য মানসম্মত শিক্ষা নিশ্চিত করি',
-    description: 'আমাদের শিক্ষা কার্যক্রমে ৫০০+ শিক্ষার্থী শিক্ষা গ্রহণ করছে। জ্ঞান অর্জনের মাধ্যমে তারা নিজেদের ভবিষ্যত গড়ছে।',
+    subtitle: 'দারিদ্র মেধাবী শিক্ষার্থীর শিক্ষা গ্রহণের সমতা নিশ্চিত করি',
+    description: 'দরিদ্র এবং মেধাবী শিক্ষার্থীদের আর্থিক এবং ক্যারিয়ার সম্বন্ধীয় তথ্য দিয়ে সাহায্য করা হয়।',
     ctaText: 'শিক্ষাবৃত্তির জন্য আবেদন করুন',
     ctaLink: '/scholarship',
     order: 1,
@@ -23,9 +23,9 @@ const defaultBanners = [
   {
     id: 2,
     imageUrl: '/images/banner-2.jpg',
-    title: 'স্মার্ট বাংলাদেশ গড়ার স্বপ্ন',
+    title: 'প্রযুক্তি ও শিক্ষার সমন্বয়ে নতুন প্রজন্ম',
     subtitle: 'প্রযুক্তি ও শিক্ষার সমন্বয়ে নতুন প্রজন্ম',
-    description: 'ডিজিটাল শিক্ষার মাধ্যমে আমরা তৈরি করছি দক্ষ ও আত্মনির্ভরশীল জনগোষ্ঠী।',
+    description: 'প্রযুক্তি বদলায় পৃথিবী, শিক্ষা বদলায় মানুষ—দুটির সমন্বয়ে বদলে যাক ভবিষ্যৎ।',
     ctaText: 'শিক্ষাবৃত্তির জন্য আবেদন করুন',
     ctaLink: '/scholarship',
     order: 2,
@@ -36,7 +36,7 @@ const defaultBanners = [
     imageUrl: '/images/banner-3.jpg',
     title: 'শিক্ষা ছাড়া কোনো জাতি উন্নত হতে পারে না',
     subtitle: 'আমাদের লক্ষ্য - সবার জন্য শিক্ষা',
-    description: 'সাতক্ষীরার প্রতিটি প্রান্তে পৌঁছে দিচ্ছি শিক্ষার আলো। আপনার সহযোগিতা আমাদের শক্তি।',
+    description: 'প্রান্তিক এলাকার মেধাবী শিক্ষার্থীদের জন্য তৈরি হোক এগিয়ে যাওয়ার সুযোগ। আপনার সহযোগিতা আমাদের শক্তি।',
     ctaText: 'শিক্ষাবৃত্তির জন্য আবেদন করুন',
     ctaLink: '/scholarship',
     order: 3,
@@ -176,7 +176,7 @@ const Hero = () => {
                     className="inline-block bg-marigold/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6 border border-marigold/30"
                     style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
                   >
-                    প্রতিষ্ঠিত ২০১৫ · রেজিস্টার্ড অলাভজনক সংস্থা
+                    প্রতিষ্ঠিত ২০২৪
                   </motion.span>
 
                   {/* Title */}

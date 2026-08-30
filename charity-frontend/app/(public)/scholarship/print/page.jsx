@@ -477,9 +477,7 @@ export default function ScholarshipPrintPage() {
         <p className="border border-black bg-neutral-100 px-3 py-2 font-body text-[13px]">
           আবেদনকারীর অন্যান্য ভাই/বোন অধ্যয়ন করলে তাদের নাম ও কোন শ্রেণিতে
           অধ্যয়ন করে এবং তাদের পড়াশোনার খরচ কে বহন করে তা নীচে উল্লেখ করুন
-          {data.siblingsCount
-            ? ` (মোট ভাই-বোন সংখ্যা: ${data.siblingsCount})`
-            : ""}:
+          
         </p>
 
         {/* ✅ Fixed Table with proper borders */}
@@ -515,8 +513,7 @@ export default function ScholarshipPrintPage() {
         </table>
 
         <p className="mt-8 font-body text-[14px] leading-relaxed">
-          আমি প্রতিজ্ঞা পূর্বক বলছি যে, উপরে উল্লেখিত বিবরণাদি আমার জ্ঞান ও
-          বিশ্বাস মতে সত্য এবং কোনও বিষয় অসত্য প্রমাণিত হলে আমার বৃত্তি
+          আমি প্রতিজ্ঞা পূর্বক বলছি যে, উপরে উল্লেখিত বিবরণাদি আমার জানামতে সত্য এবং কোনও বিষয় অসত্য প্রমাণিত হলে আমার বৃত্তি
           বাতিল বলে গণ্য হবে এবং গৃহীত বৃত্তির টাকা ফেরত দিতে বাধ্য থাকবো।
         </p>
 

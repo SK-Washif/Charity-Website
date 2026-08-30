@@ -8,34 +8,34 @@ import { api } from '@/lib/api';
 
 // Default Data 
 const defaultStats = [
-  { 
-    id: 1,
-    label: 'মেধাবী শিক্ষার্থী পেয়েছে বৃত্তি', 
-    value: '214', 
-    icon: FaUsers,
-    suffix: '+'
-  },
-  { 
-    id: 2,
-    label: 'শিক্ষার্থী পেয়েছে A+', 
-    value: '1,340', 
-    icon: FaStar,
-    suffix: '+'
-  },
-  { 
-    id: 3,
-    label: 'সক্রিয় শিক্ষা কার্যক্রম', 
-    value: '5', 
-    icon: FaHandsHelping,
-    suffix: ''
-  },
-  { 
-    id: 4,
-    label: 'কার্যকর বছর', 
-    value: '9', 
-    icon: FaClock,
-    suffix: '+'
-  },
+  // { 
+  //   id: 1,
+  //   label: 'মেধাবী শিক্ষার্থী পেয়েছে বৃত্তি', 
+  //   value: '214', 
+  //   icon: FaUsers,
+  //   suffix: '+'
+  // },
+  // { 
+  //   id: 2,
+  //   label: 'শিক্ষার্থী পেয়েছে A+', 
+  //   value: '1,340', 
+  //   icon: FaStar,
+  //   suffix: '+'
+  // },
+  // { 
+  //   id: 3,
+  //   label: 'সক্রিয় শিক্ষা কার্যক্রম', 
+  //   value: '5', 
+  //   icon: FaHandsHelping,
+  //   suffix: ''
+  // },
+  // { 
+  //   id: 4,
+  //   label: 'কার্যকর বছর', 
+  //   value: '9', 
+  //   icon: FaClock,
+  //   suffix: '+'
+  // },
 ];
 
 const StatsSection = () => {
@@ -128,7 +128,8 @@ const StatsSection = () => {
           transition={{ duration: 0.6 }}
           className="mb-8 font-display text-2xl md:text-3xl font-semibold text-ink text-center"
         >
-          এক নজরে আমাদের কার্যক্রম
+          {/* এক নজরে আমাদের কার্যক্রম */}
+          ঐক্যতান ফাউন্ডেশন 
         </motion.h2>
 
         {/* Stats Cards - Center Aligned */}

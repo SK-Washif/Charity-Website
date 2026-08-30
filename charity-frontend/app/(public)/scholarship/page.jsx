@@ -90,8 +90,7 @@ export default function ScholarshipPage() {
         Scholarship Application
       </h1>
       <p className="mt-4 max-w-xl font-body text-ink-muted">
-        নিচের তথ্যগুলো পূরণ করে জমা দিন। Submit হলে আপনাকে প্রিন্টযোগ্য পূর্ণাঙ্গ ফর্ম পেজে নিয়ে যাওয়া
-        হবে, যেখানে এই তথ্যগুলো আগে থেকেই পূরণ করা থাকবে।
+        নিচের তথ্যগুলো পূরণ করে Submit করুন। Submit হলে আপনাকে প্রিন্ট যোগ্য পূর্ণাঙ্গ ফর্ম পেজে নিয়ে যাওয়া হবে এবং সেটি ডাউনলোড করুন। 
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 max-w-3xl space-y-10">

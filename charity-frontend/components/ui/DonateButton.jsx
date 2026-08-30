@@ -244,11 +244,11 @@ function DonateModal({ onClose }) {
                 size={14}
               />
               <p className="font-body text-xs leading-relaxed text-ink-muted">
-                অনুদান পাঠানোর পর একটি স্ক্রিনশট{" "}
+                বিস্তারিত জন্য কর্তৃপক্ষের {" "}
                 <span className="font-medium text-ink">
                   {settings.confirmationEmail}
                 </span>{" "}
-                এ পাঠিয়ে দিলে আমরা রশিদ নিশ্চিত করব।
+                সাথে যোগাযোগ করুন।
               </p>
             </div>
           )}

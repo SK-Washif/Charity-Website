@@ -53,17 +53,17 @@ export default function Footer() {
           
           {/* Brand / About */}
           <div className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-              <div className="bg-marigold/20 p-2 rounded-full">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
+              {/* <div className="bg-marigold/20 p-2 rounded-full">
                 <FaHeart className="text-marigold text-xl" />
-              </div>
+              </div> */}
               <h2 className="font-display text-3xl font-bold text-white">
                 ঐক্যতান <span className="text-marigold">ফাউন্ডেশন</span>
               </h2>
             </div>
             <p className="text-kraft/60 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
-              শিক্ষা, চিকিৎসা ও মানবিক সহায়তার মাধ্যমে 
-              সমাজের উন্নয়নে কাজ করছে একটি অলাভজনক সংস্থা।
+              একজন শিক্ষার্থীকে এগিয়ে দেওয়া মানে একটি সম্ভাবনাময় ভবিষ্যৎকে এগিয়ে দেওয়া। <br/>
+শিক্ষা, আর্থিক সহায়তা ও ক্যারিয়ার নির্দেশনার মাধ্যমে আমরা গড়ে তুলতে চাই আগামীর সম্ভাবনাময় প্রজন্ম।"
             </p>
           </div>
 

@@ -170,14 +170,14 @@ export default function Gallery() {
             কার্যক্রমের কিছু মুহূর্ত
           </motion.h2>
 
-          <motion.p
+          {/* <motion.p
             variants={fadeUp}
             custom={0.2}
             className="mt-4 max-w-2xl font-body text-ink-muted"
           >
             মাঠপর্যায়ের কার্যক্রম, বিতরণ অনুষ্ঠান ও উপকারভোগীদের কিছু ছবি —
             আমাদের কাজের প্রতিটি মুহূর্ত আপনার সাথে শেয়ার করছি।
-          </motion.p>
+          </motion.p> */}
         </motion.div>
 
         {/* Gallery Grid */}
