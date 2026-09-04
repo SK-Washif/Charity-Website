@@ -6,7 +6,6 @@ import { HiX, HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { FaImages, FaSpinner } from "react-icons/fa";
 import { api } from "@/lib/api";
 
-//Default Gallery Images (যখন Admin থেকে কিছু আসবে না)
 const DEFAULT_GALLERY_IMAGES = [
   { 
     id: 1, 
@@ -50,7 +49,6 @@ const DEFAULT_GALLERY_IMAGES = [
   },
 ];
 
-// Animation variants
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
@@ -73,7 +71,6 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(null);
 
-  //Real API থেকে Data Fetch + Default Fallback
   useEffect(() => {
     fetchGallery();
   }, []);
@@ -83,7 +80,6 @@ export default function Gallery() {
       setLoading(true);
       const data = await api.getGallery();
       
-      //API থেকে ডেটা আসলে সেটা দেখাবে, না হলে Default দেখাবে
       if (Array.isArray(data) && data.length > 0) {
         const mappedData = data.map((item) => ({
           id: item._id || item.id,
@@ -92,12 +88,10 @@ export default function Gallery() {
         }));
         setItems(mappedData);
       } else {
-        //API খালি থাকলে Default দেখাবে
         setItems(DEFAULT_GALLERY_IMAGES);
       }
     } catch (error) {
       console.error("Failed to fetch gallery:", error);
-      //Error হলে Default দেখাবে
       setItems(DEFAULT_GALLERY_IMAGES);
     } finally {
       setLoading(false);
@@ -117,7 +111,6 @@ export default function Gallery() {
     [items.length]
   );
 
-  // Keyboard navigation
   useEffect(() => {
     if (activeIndex === null) return;
     const onKey = (e) => {
@@ -135,13 +128,12 @@ export default function Gallery() {
 
   const active = activeIndex !== null ? items[activeIndex] : null;
 
-  // Loading State
   if (loading) {
     return (
       <section id="gallery" className="anchor-section section border-t border-line mb-24">
         <div className="container-9xl">
           <div className="text-center py-12">
-            <p className="text-ink-muted">লোড হচ্ছে...</p>
+            <p className="text-ink-muted" aria-live="polite">লোড হচ্ছে...</p>
           </div>
         </div>
       </section>
@@ -149,9 +141,8 @@ export default function Gallery() {
   }
 
   return (
-    <section id="gallery" className="anchor-section section border-t border-line mb-24">
+    <section id="gallery" className="anchor-section section border-t border-line mb-24" aria-labelledby="gallery-title">
       <div className="container-9xl">
-        {/* Header */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -163,30 +154,23 @@ export default function Gallery() {
           </motion.span>
 
           <motion.h2
+            id="gallery-title"
             variants={fadeUp}
             custom={0.1}
             className="mt-2 font-display text-3xl font-semibold text-ink md:text-4xl"
           >
             কার্যক্রমের কিছু মুহূর্ত
           </motion.h2>
-
-          {/* <motion.p
-            variants={fadeUp}
-            custom={0.2}
-            className="mt-4 max-w-2xl font-body text-ink-muted"
-          >
-            মাঠপর্যায়ের কার্যক্রম, বিতরণ অনুষ্ঠান ও উপকারভোগীদের কিছু ছবি —
-            আমাদের কাজের প্রতিটি মুহূর্ত আপনার সাথে শেয়ার করছি।
-          </motion.p> */}
         </motion.div>
 
-        {/* Gallery Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           className="mt-10 columns-2 gap-4 sm:columns-3 md:columns-3 lg:columns-4"
+          role="list"
+          aria-label="গ্যালারি ছবির তালিকা"
         >
           {items.map((item, i) => (
             <motion.button
@@ -196,6 +180,8 @@ export default function Gallery() {
               variants={fadeUp}
               custom={i}
               className="group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-xl border border-line bg-paper shadow-sm transition-all duration-300 hover:shadow-xl"
+              aria-label={`${item.title} দেখতে ক্লিক করুন - ছবি ${i + 1} of ${items.length}`}
+              role="listitem"
             >
               <img
                 src={item.imageUrl}
@@ -206,19 +192,17 @@ export default function Gallery() {
                   e.target.src = "https://picsum.photos/seed/fallback/600/800";
                 }}
               />
-              {/* Overlay */}
               <div className="pointer-events-none absolute inset-0 flex items-end bg-gradient-to-t from-ink/90 via-ink/30 to-transparent opacity-0 transition-all duration-400 group-hover:opacity-100">
                 <div className="w-full p-4">
                   <span className="label-caps text-kraft text-xs md:text-sm">
                     {item.title}
                   </span>
                   <div className="mt-2 flex items-center gap-2 text-kraft/70 text-xs">
-                    <FaImages size={12} />
+                    <FaImages size={12} aria-hidden="true" />
                     <span>দেখুন</span>
                   </div>
                 </div>
               </div>
-              {/* Counter Badge */}
               <div className="absolute top-3 right-3 bg-ink/60 backdrop-blur-sm text-kraft text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                 {i + 1}/{items.length}
               </div>
@@ -238,38 +222,39 @@ export default function Gallery() {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/95 p-4 backdrop-blur-md"
             onClick={close}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`গ্যালারি ছবি: ${active.title}`}
           >
-            {/* Close Button */}
             <motion.button
               type="button"
               onClick={close}
-              aria-label="বন্ধ করুন"
+              aria-label="গ্যালারি বন্ধ করুন"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 }}
               className="absolute right-5 top-5 z-10 text-kraft/80 transition-all hover:scale-110 hover:text-marigold"
             >
-              <HiX size={32} />
+              <HiX size={32} aria-hidden="true" />
             </motion.button>
 
-            {/* Counter */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
               className="absolute left-1/2 -translate-x-1/2 top-5 z-10 text-kraft/60 text-sm font-mono"
+              aria-live="polite"
             >
               {activeIndex + 1} / {items.length}
             </motion.div>
 
-            {/* Navigation Buttons */}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); showPrev(); }}
               aria-label="আগের ছবি"
               className="absolute left-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-ink/60 p-3 text-kraft transition-all hover:bg-marigold hover:text-ink hover:scale-110 md:left-6"
             >
-              <HiChevronLeft size={28} />
+              <HiChevronLeft size={28} aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -277,10 +262,9 @@ export default function Gallery() {
               aria-label="পরের ছবি"
               className="absolute right-3 top-1/2 -translate-y-1/2 z-10 rounded-full bg-ink/60 p-3 text-kraft transition-all hover:bg-marigold hover:text-ink hover:scale-110 md:right-6"
             >
-              <HiChevronRight size={28} />
+              <HiChevronRight size={28} aria-hidden="true" />
             </button>
 
-            {/* Image */}
             <motion.figure
               key={active.id}
               initial={{ opacity: 0, scale: 0.92, y: 20 }}

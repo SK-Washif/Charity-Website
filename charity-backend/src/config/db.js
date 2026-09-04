@@ -8,10 +8,11 @@ async function connectDB() {
     serverSelectionTimeoutMS: 8000,
     connectTimeoutMS: 10000,
     socketTimeoutMS: 20000,
-    tls: true,
-    tlsAllowInvalidCertificates: true, 
-    // tlsAllowInvalidHostnames: true, 
-    // tlsInsecure: true,              
+    // NOTE: tlsAllowInvalidCertificates was previously set to true here.
+    // That disables TLS certificate validation entirely (a man-in-the-middle
+    // vulnerability) and is never needed for a normal MongoDB Atlas
+    // connection string (mongodb+srv://...), which already negotiates valid
+    // TLS by default. Removed — do not re-add this in production.
   };
 
   try {

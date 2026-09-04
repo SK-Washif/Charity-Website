@@ -836,7 +836,7 @@ export default function AdminDonationPage() {
             <Field
               label="অনুদান নিশ্চিতকরণ ইমেইল"
               name="confirmationEmail"
-              type="email"
+              type=""
               value={settings.confirmationEmail}
               onChange={handleSettingsChange}
               placeholder="info@oikkotan.org"

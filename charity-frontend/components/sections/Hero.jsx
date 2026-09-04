@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaArrowLeft, FaArrowRight, FaSpinner } from 'react-icons/fa';
 import { api } from '@/lib/api';
@@ -50,7 +49,6 @@ const Hero = () => {
   const [loading, setLoading] = useState(true);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
 
-  //Fetch Data from API
   useEffect(() => {
     fetchBanners();
   }, []);
@@ -62,11 +60,12 @@ const Hero = () => {
       
       console.log('📥 Hero fetch banners:', data);
       
+      // ✅ Check if data exists and has items
       if (Array.isArray(data) && data.length > 0) {
-        //Filter only active banners
+        // Filter only active banners
         const activeBanners = data.filter(b => b.isActive !== false);
         if (activeBanners.length > 0) {
-          //Map banners with proper imageUrl
+          // Map banners with proper imageUrl
           const mappedBanners = activeBanners.map(b => ({
             id: b.id || b._id,
             imageUrl: b.imageUrl || b.image || '/images/banner-1.jpg',
@@ -80,14 +79,18 @@ const Hero = () => {
           }));
           console.log('✅ Mapped banners:', mappedBanners);
           setBanners(mappedBanners);
-        } else {
-          setBanners(defaultBanners);
+          setLoading(false);
+          return;
         }
-      } else {
-        setBanners(defaultBanners);
       }
+      
+      // ✅ If no data from API, use default banners
+      console.log('ℹ️ No banners from API, using default');
+      setBanners(defaultBanners);
+      
     } catch (error) {
       console.error('❌ Failed to fetch banners:', error);
+      // ✅ On error, use default banners
       setBanners(defaultBanners);
     } finally {
       setLoading(false);
@@ -123,14 +126,22 @@ const Hero = () => {
     );
   }
 
-  //Check if image is valid
+  // ✅ Check if banners exist
+  if (!banners || banners.length === 0) {
+    return (
+      <section className="relative overflow-hidden bg-paper">
+        <div className="relative h-[600px] md:h-[700px] lg:h-[800px] w-full flex items-center justify-center">
+          <p className="text-ink-muted">কোনো ব্যানার পাওয়া যায়নি।</p>
+        </div>
+      </section>
+    );
+  }
+
   const getImageUrl = (url) => {
     if (!url) return '/images/banner-1.jpg';
-    //If it's an ImageBB URL or any valid URL, use it
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    //If it's a local path
     return url;
   };
 
@@ -151,7 +162,7 @@ const Hero = () => {
               background: 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)'
             }} />
             
-            {/* Image - using img tag for better compatibility with external URLs */}
+            {/* Image */}
             <div className="relative w-full h-full">
               <img
                 src={getImageUrl(currentBanner.imageUrl)}
@@ -168,7 +179,6 @@ const Hero = () => {
             <div className="absolute inset-0 z-20 flex items-center">
               <div className="container-xl mx-auto px-6 md:px-8 lg:px-12 w-full">
                 <div className="max-w-3xl ml-0 md:ml-4 lg:ml-8">
-                  {/* Badge */}
                   <motion.span
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -179,7 +189,6 @@ const Hero = () => {
                     প্রতিষ্ঠিত ২০২৪
                   </motion.span>
 
-                  {/* Title */}
                   <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -190,7 +199,6 @@ const Hero = () => {
                     {currentBanner.title}
                   </motion.h1>
 
-                  {/* Subtitle */}
                   <motion.p
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -204,7 +212,6 @@ const Hero = () => {
                     {currentBanner.subtitle}
                   </motion.p>
 
-                  {/* Description */}
                   <motion.p
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -215,7 +222,6 @@ const Hero = () => {
                     {currentBanner.description}
                   </motion.p>
 
-                  {/* Buttons */}
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -133,7 +133,7 @@ const StatsSection = () => {
         </motion.h2>
 
         {/* Stats Cards - Center Aligned */}
-        <div className="flex flex-wrap justify-center items-center gap-6">
+        {/* <div className="flex flex-wrap justify-center items-center gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -159,7 +159,7 @@ const StatsSection = () => {
               </motion.div>
             );
           })}
-        </div>
+        </div> */}
       </div>
     </section>
   );

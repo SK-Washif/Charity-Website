@@ -176,10 +176,10 @@ export default function ScholarshipPreview() {
               />
               
               {/* Fallback placeholder - shows when image fails */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-marigold/5 pointer-events-none">
+              {/* <div className="absolute inset-0 flex flex-col items-center justify-center bg-marigold/5 pointer-events-none">
                 <FaGraduationCap className="text-6xl text-marigold/30" />
                 <span className="text-ink/30 font-display text-sm mt-2">শিক্ষাবৃত্তি</span>
-              </div>
+              </div> */}
 
               {/* Floating Badge */}
               <motion.div
@@ -189,7 +189,7 @@ export default function ScholarshipPreview() {
                 transition={{ duration: 0.6, delay: 0.5, type: "spring", stiffness: 200 }}
                 className="absolute -bottom-4 -left-4 bg-ink/90 backdrop-blur-sm rounded-xl px-4 py-3 shadow-xl border border-marigold/20"
               >
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-marigold text-ink">
                     <FaGraduationCap size={18} />
                   </span>
@@ -201,7 +201,7 @@ export default function ScholarshipPreview() {
                       শিক্ষার্থী পেয়েছে বৃত্তি
                     </span>
                   </span>
-                </div>
+                </div> */}
               </motion.div>
 
               {/* Decorative Elements */}

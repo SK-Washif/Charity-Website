@@ -4,13 +4,13 @@ import Services from "@/components/sections/Services";
 import Gallery from "@/components/sections/Gallery";
 import ScholarshipPreview from "@/components/sections/ScholarshipPreview";
 import Contact from "@/components/sections/Contact";
-import StatsSection from "@/components/sections/StatsSection";
+// import StatsSection from "@/components/sections/StatsSection";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <StatsSection />
+      {/* StatsSection */}
       <About />
       <Services />
       <Gallery />

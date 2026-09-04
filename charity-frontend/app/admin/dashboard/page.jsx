@@ -20,12 +20,12 @@ const shortcuts = [
     desc: "হোম পেজের ৩টা স্লাইড-শো ছবি ও লেখা আপলোড/এডিট করুন",
     icon: FaHeroImages,
   },
-  {
-    href: "/admin/stats",
-    label: "পরিসংখ্যান",
-    desc: "\"২১৪+ শিক্ষার্থী\"-এর মতো স্ট্যাট কার্ড যোগ/এডিট/মুছুন",
-    icon: FaChartBar,
-  },
+  // {
+  //   href: "/admin/stats",
+  //   label: "পরিসংখ্যান",
+  //   desc: "\"২১৪+ শিক্ষার্থী\"-এর মতো স্ট্যাট কার্ড যোগ/এডিট/মুছুন",
+  //   icon: FaChartBar,
+  // },
   {
     href: "/admin/about",
     label: "আমাদের কথা",

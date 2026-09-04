@@ -19,4 +19,7 @@ const programSchema = new mongoose.Schema(
   }
 );
 
+
+programSchema.index({ order: 1, createdAt: 1 });
+
 module.exports = mongoose.model("Program", programSchema);

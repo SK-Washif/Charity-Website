@@ -11,8 +11,10 @@ const apiClient = axios.create({
 //Request Interceptor - Security & Token
 apiClient.interceptors.request.use(
   async (config) => {
-    //Only run in browser
-    if (typeof window !== "undefined" && window.Clerk?.session) {
+    
+    const needsAuth = (config.method || "get").toLowerCase() !== "get";
+
+    if (needsAuth && typeof window !== "undefined" && window.Clerk?.session) {
       try {
         const token = await window.Clerk.session.getToken();
         if (token) {
@@ -20,16 +22,17 @@ apiClient.interceptors.request.use(
         }
       } catch (error) {
         console.error("Failed to get Clerk token:", error);
-        //Don't proceed if token fails (security)
+        //Don't proceed if token fails (security) — only relevant here,
+        //since this branch only runs for requests that require auth.
         return Promise.reject(error);
       }
     }
-    
+
     //Security: Prevent caching of sensitive requests
     if (config.method === 'post' || config.method === 'put' || config.method === 'delete') {
       config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
     }
-    
+
     //Log only in development, not in production
     if (process.env.NODE_ENV === "development") {
       console.log(`📤 ${config.method?.toUpperCase()} ${config.url}`);

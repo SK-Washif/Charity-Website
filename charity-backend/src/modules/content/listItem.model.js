@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const listItemSchema = new mongoose.Schema(
   {
-    collection: { type: String, required: true, index: true },
+    collection: { type: String, required: true },
     order: { type: Number, default: 0 },
   },
   {
@@ -17,5 +17,8 @@ const listItemSchema = new mongoose.Schema(
     },
   }
 );
+
+
+listItemSchema.index({ collection: 1, order: 1, createdAt: 1 });
 
 module.exports = mongoose.model("ListItem", listItemSchema);

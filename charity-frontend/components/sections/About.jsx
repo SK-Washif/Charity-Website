@@ -94,7 +94,7 @@ export default function About() {
   }
 
   return (
-    <section id="about" className="anchor-section section border-t border-line mb-24">
+    <section id="about" className="anchor-section section border-t border-line mb-24 mt-24">
       <div className="container-9xl">
         <div className="grid items-center gap-14 md:grid-cols-2">
           {/* Left: Text */}
@@ -179,7 +179,7 @@ export default function About() {
                 <FaHandsHelping size={16} />
               </span>
               <span>
-                <span className="block font-mono text-lg font-semibold leading-none">214+</span>
+                <span className="block font-mono text-lg font-semibold leading-none">১০০+</span>
                 <span className="label-caps text-kraft/70">শিক্ষার্থী সহায়তা</span>
               </span>
             </motion.div>

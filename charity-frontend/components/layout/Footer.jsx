@@ -12,7 +12,6 @@ export default function Footer() {
   const [social, setSocial] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  //Fetch Data from API
   useEffect(() => {
     fetchFooterData();
   }, []);
@@ -46,44 +45,36 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-ink text-kraft">
-      {/* Main Footer Content */}
+    <footer className="bg-ink text-kraft" role="contentinfo">
       <div className="container-custom mx-auto px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-8">
           
-          {/* Brand / About */}
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-              {/* <div className="bg-marigold/20 p-2 rounded-full">
-                <FaHeart className="text-marigold text-xl" />
-              </div> */}
               <h2 className="font-display text-3xl font-bold text-white">
                 ঐক্যতান <span className="text-marigold">ফাউন্ডেশন</span>
               </h2>
             </div>
             <p className="text-kraft/60 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
               একজন শিক্ষার্থীকে এগিয়ে দেওয়া মানে একটি সম্ভাবনাময় ভবিষ্যৎকে এগিয়ে দেওয়া। <br/>
-শিক্ষা, আর্থিক সহায়তা ও ক্যারিয়ার নির্দেশনার মাধ্যমে আমরা গড়ে তুলতে চাই আগামীর সম্ভাবনাময় প্রজন্ম।"
+শিক্ষা, আর্থিক সহায়তা ও ক্যারিয়ার নির্দেশনার মাধ্যমে আমরা গড়ে তুলতে চাই আগামীর সম্ভাবনাময় প্রজন্ম।
             </p>
           </div>
 
-          {/* সংস্থা */}
           <div className="text-center md:text-left">
-            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">
-              সংস্থা
-            </h3>
-            <ul className="space-y-3 font-body text-sm">
-              <li>
+            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">সংস্থা</h3>
+            <ul className="space-y-3 font-body text-sm" role="list">
+              <li role="listitem">
                 <Link href="/#about" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   আমাদের কথা
                 </Link>
               </li>
-              <li>
+              <li role="listitem">
                 <Link href="/#services" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   সেবাসমূহ
                 </Link>
               </li>
-              <li>
+              <li role="listitem">
                 <Link href="/#gallery" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   গ্যালারি
                 </Link>
@@ -91,23 +82,20 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* সহায়তা */}
           <div className="text-center md:text-left">
-            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">
-              সহায়তা
-            </h3>
-            <ul className="space-y-3 font-body text-sm">
-              <li>
+            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">সহায়তা</h3>
+            <ul className="space-y-3 font-body text-sm" role="list">
+              <li role="listitem">
                 <Link href="/#scholarship" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   নূরুল বাছেরা শিক্ষা বৃত্তি প্রকল্প
                 </Link>
               </li>
-              <li>
+              <li role="listitem">
                 <Link href="/scholarship" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   শিক্ষাবৃত্তি আবেদন
                 </Link>
               </li>
-              <li>
+              <li role="listitem">
                 <Link href="/#contact" className="text-kraft/70 hover:text-marigold transition-colors duration-200">
                   যোগাযোগ করুন
                 </Link>
@@ -115,21 +103,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/*যোগাযোগ - Contact Section */}
           <div className="text-center md:text-left">
-            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">
-              যোগাযোগ
-            </h3>
+            <h3 className="label-caps mb-4 text-kraft/50 font-semibold tracking-wider">যোগাযোগ</h3>
             
             {cards.length === 0 ? (
               <p className="text-kraft/40 text-sm">যোগাযোগের তথ্য নেই</p>
             ) : (
-              <ul className="space-y-3 font-body text-sm">
+              <ul className="space-y-3 font-body text-sm" role="list">
                 {cards.map((card) => {
                   const Icon = getIcon(card.icon || "FaStar");
                   return (
-                    <li key={card.id} className="flex items-center justify-center md:justify-start gap-3 text-kraft/70">
-                      <Icon className="text-marigold text-sm flex-shrink-0" />
+                    <li key={card.id} className="flex items-center justify-center md:justify-start gap-3 text-kraft/70" role="listitem">
+                      <Icon className="text-marigold text-sm flex-shrink-0" aria-hidden="true" />
                       <div>
                         <span className="text-kraft/50 text-xs">{card.label}: </span>
                         <span>{card.value || "—"}</span>
@@ -145,9 +130,8 @@ export default function Footer() {
               </ul>
             )}
 
-            {/*Social Icons*/}
             {social.length > 0 && (
-              <div className="flex justify-center md:justify-start gap-4 mt-6">
+              <div className="flex justify-center md:justify-start gap-4 mt-6" role="list" aria-label="সোশ্যাল মিডিয়া লিংক">
                 {social.map((item) => {
                   const Icon = getIcon(item.icon || "FaGlobe");
                   return (
@@ -156,10 +140,11 @@ export default function Footer() {
                       href={item.url || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={item.platform}
+                      aria-label={`${item.platform || "সোশ্যাল মিডিয়া"} - নতুন ট্যাবে খুলুন`}
                       className="bg-kraft/10 p-2.5 rounded-full hover:bg-marigold hover:text-ink transition-all duration-300 hover:scale-110"
+                      role="listitem"
                     >
-                      <Icon className="text-kraft/70 hover:text-ink text-lg" />
+                      <Icon className="text-kraft/70 hover:text-ink text-lg" aria-hidden="true" />
                     </a>
                   );
                 })}
@@ -169,7 +154,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Donate CTA Banner */}
       <div className="border-t border-kraft/10 bg-gradient-to-r from-marigold/15 via-marigold/5 to-transparent px-6 py-10">
         <div className="container-custom mx-auto flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
           <div>
@@ -184,7 +168,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-kraft/10 px-6 py-5">
         <div className="container-custom mx-auto flex flex-col items-center justify-between gap-3 md:flex-row">
           <p className="font-mono text-xs tracking-wide text-kraft/40 text-center md:text-left">

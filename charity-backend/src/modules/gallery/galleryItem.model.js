@@ -17,4 +17,7 @@ const galleryItemSchema = new mongoose.Schema(
   }
 );
 
+
+galleryItemSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model("GalleryItem", galleryItemSchema);

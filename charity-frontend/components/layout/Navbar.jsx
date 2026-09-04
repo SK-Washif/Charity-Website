@@ -18,18 +18,23 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10">
-        <Link href="/" className="flex items-center gap-3">
-          {/* <Stamp size={44} rotate={-6} lines={["ঐক্য", "তান"]} /> */}
+    <header 
+      className="sticky top-0 z-50 border-b border-line bg-paper/90 backdrop-blur"
+      role="banner"
+    >
+      <nav 
+        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-10"
+        aria-label="প্রধান নেভিগেশন"
+      >
+        <Link href="/" className="flex items-center gap-3" aria-label="হোম পেজে যান">
           <span className="font-display text-2xl font-semibold text-ink">
             ঐক্যতান ফাউন্ডেশন
           </span>
         </Link>
 
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden items-center gap-8 md:flex" role="list">
           {links.map((l) => (
-            <li key={l.href}>
+            <li key={l.href} role="listitem">
               <Link href={l.href} className="label-caps hover:text-ink">
                 {l.label}
               </Link>
@@ -38,7 +43,6 @@ export default function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
-          
           <Link href="/scholarship" className="btn-marigold inline-flex">
             শিক্ষাবৃত্তি আবেদন
           </Link>
@@ -48,16 +52,20 @@ export default function Navbar() {
         <button
           className="text-ink md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={open ? "মেনু বন্ধ করুন" : "মেনু খুলুন"}
+          aria-expanded={open}
         >
-          {open ? <HiX size={26} /> : <HiMenu size={26} />}
+          {open ? <HiX size={26} aria-hidden="true" /> : <HiMenu size={26} aria-hidden="true" />}
         </button>
       </nav>
 
       {open && (
-        <ul className="flex flex-col gap-1 border-t border-line bg-paper px-6 py-4 md:hidden">
+        <ul 
+          className="flex flex-col gap-1 border-t border-line bg-paper px-6 py-4 md:hidden"
+          role="list"
+        >
           {links.map((l) => (
-            <li key={l.href}>
+            <li key={l.href} role="listitem">
               <Link
                 href={l.href}
                 className="block py-2 label-caps"
@@ -67,7 +75,7 @@ export default function Navbar() {
               </Link>
             </li>
           ))}
-          <li className="flex flex-wrap gap-3 pt-2">
+          <li className="flex flex-wrap gap-3 pt-2" role="listitem">
             <Link
               href="/scholarship"
               className="btn-marigold inline-flex"
