@@ -174,7 +174,7 @@ export default function Footer() {
             © {new Date().getFullYear()} ঐক্যতান ফাউন্ডেশন · সর্বস্বত্ব সংরক্ষিত
           </p>
           <p className="font-mono text-xs tracking-wide text-kraft/40 text-center md:text-right">
-            রেজিস্টার্ড অলাভজনক সংস্থা · প্রতিষ্ঠিত ২০১৫
+            অলাভজনক সংস্থা · প্রতিষ্ঠিত ২০২৪
           </p>
         </div>
       </div>
